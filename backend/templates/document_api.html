@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<p>http://127.0.0.1:5000/path</p>
+
+<p>Part 1 Path ( /add ) medthod = ['POST'] </p>
+<p>example body</p>
+<pre><code>{
+    "name":"Tong",
+    "token":"asldkfjasl;dkfjas;ld",
+    "age":32,
+    "gender":"famale",
+    "fav": [
+        "Nap X warin",
+        "Nap X Roaster",
+        "Seeresok"
+    ]
+}
+
+<p>Part 2 Path ( /nearby ) medthod = ['GET']</p>
+<p>example</p> 
+<p>http://127.0.0.1:5000/nearby?latitude=15.282423&longitude=104.833366</p>
+<p>json format</p>
+<pre><code>    {
+    "_id": "63c1709db231cdbebccbd55c",
+    "distance": 0.2685464594113211,
+    "latitude": 15.28021234,
+    "longitude": 104.8343741,
+    "store": "Yuanjai Café"
+},...
+    </code></pre>
+
+    <p>Part 3 Path ( /type ) medthod = ['GET']</p>
+    <p>example</p> 
+    <p>http://127.0.0.1:5000/type?type=speedbar,bakery</p>
+    <p>json format</p>
+    <pre><code>[
+        {
+            "": "0",
+            "address\t": "49, 1 ถนน ศรีณรงค์ ตำบลในเมือง อำเภอเมืองอุบลราชธานี อุบลราชธานี 34000",
+            "amenities": "Toilets",
+            "count_rating": 178.0,
+            "latitude": 15.22891997,
+            "longitude": 104.8653647,
+            "menu coffee": "hazelnut latte,vanilla latte,caramel latte,espresso,americano,cappuccino,mocha,latte",
+            "menu non coffee": "Red Plum Sparking,Honey Lemon Sparking,Lychee Sparking,Mint Lime Sparking,Vanilla Milk,Hazelnut Milk,Caramel Milk,Peach Tea,Apple tea,Taro Latte,Thai tea,Lemon tea,matcha,cocoa",
+            "plus_code": "6VH8+F5 เทศบาลนครอุบลราชธานี อำเภอเมืองอุบลราชธานี อุบลราชธานี",
+            "rating": 4.6,
+            "store": "NAP's Coffee & Roasters",
+            "type": [
+                "speedbar"
+            ]
+        }, ...
+        </code></pre>
+
+        <p>Part 4 Path ( /recom ) </p>
+        stage studying ...
+
+{% endblock %}

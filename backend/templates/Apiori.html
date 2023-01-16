@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container">
+    <div class="form-center">
+      <form action = "{{ url_for('webrecom') }}" class="form" method = "GET" >
+          <h1>Recommendation by Apiori model rule</h1>
+          <div class="container-fluid">
+            <div class="form-group">
+                <label for="sel1">Select Gender:</label>
+                <select class="form-control"  type = text name= "select1" id="sel1">
+                  <option>female</option>
+                  <option>male</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="sel2">Select Age:</label>
+                <select class="form-control" type = text name= "select2" id="sel2">
+                  <option>10-20</option>
+                  <option>21-40</option>
+                  <option>41-60</option>
+                </select>
+              </div>
+              <button class="btn btn-outline-success" aria-hidden="true">Find</button>
+            </div>
+      </form>
+  </div>
+  <div class="container">
+  <table class="table">
+    <thead>
+        <tr>
+            <th>Rule</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for post in posts %}
+            <tr>
+                <td class="text-overflow">{{ post }}</td>
+                
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}
+
+

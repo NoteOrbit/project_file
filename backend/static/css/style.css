@@ -1,0 +1,32 @@
+.form-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.img-radius-right {
+    border-top-right-radius: 50%;
+    border-bottom-right-radius: 50%;
+    max-width: 30%;
+    height: auto;
+      
+}
+
+.card-container{
+    padding: 5px;
+  }
+
+
+td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+    td {
+        overflow: visible;
+        white-space: normal;
+        word-wrap: break-word;
+    }
+}
+

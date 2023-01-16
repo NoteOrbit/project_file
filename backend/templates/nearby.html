@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <div class="form-center">
+      <form class="form" method = "GET" >
+          <h1>Try Locations Haversine</h1>
+          <div class="line-separator"></div>
+              <div class="container-fluid">
+                  <input name = "latitude" type="float" placeholder="latitude" required/>
+                  <input name = "longitude" type="float" placeholder="longitude" required/>
+                  <button class="btn btn-outline-success" aria-hidden="true">Find</button>
+              </div>
+      </form>
+  </div>
+    <h3>Store Nearby locations</h3>
+    <div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Store Name</th>
+                <th>Distance</th>
+                <th>Coordinates</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post in posts %}
+                <tr>
+                    <td class="text-overflow">{{ post.store }}</td>
+                    <td class="text-overflow">{{ post.distance}}</td>
+                    <td class="text-overflow">{{ post.latitude }} {{post.longitude}}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+

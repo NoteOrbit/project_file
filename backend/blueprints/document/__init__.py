@@ -1,0 +1,1 @@
+from .blueprint import doc_page
