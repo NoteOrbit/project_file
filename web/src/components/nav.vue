@@ -3,34 +3,41 @@
 </script>
 
 <template>
-    <nav class="navbar navbar-dark bg-dark navbar-expand-md">
-      <div class="container-fluid">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
-          <a class="navbar-brand" href="/home">Recommendation system</a>
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
+  <header>
+    <div class="contrainer">
+      <nav class="navbar navbar-expand-lg bg-danger">
+        <div class="container-fluid">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01"
+            aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+            <a class="navbar-brand" href="/home">Recommendation system</a>
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
                 <router-link class="nav-link no-underline " to="about">
-                   locations base
+                  Locations base
                 </router-link>
-            </li>
-            <li class="nav-item">
-                
-              <a class="nav-link" href="#">Link</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link " href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-            </li>
-          </ul>
+              </li>
+              <li class="nav-item">
+
+                <a class="nav-link" href="#">Apriori model</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link " href="#" tabindex="-1" aria-disabled="true">Fillter</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link " href="#" tabindex="-1" aria-disabled="true">Dashboard</a>
+              </li>
+            </ul>
+          </div>
         </div>
-      </div>
-    </nav>
-    
-    </template>
+      </nav>
+    </div>
+  </header>
+</template>
 <style>
-  .no-underline {
-    text-decoration: none;
-  }
+.no-underline {
+  text-decoration: none;
+}
 </style>

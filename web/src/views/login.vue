@@ -8,6 +8,7 @@
           class="img-fluid" alt="Phone image">
       </div>
       <div class="col-md-7 col-lg-5 col-xl-5 offset-xl-1">
+        <h1 class="Login">Login system</h1>
         <form>
           <!-- Email input -->
           <div class="form-outline mb-4">
@@ -25,7 +26,9 @@
           <router-link to="/home">
             <button class="btn btn-primary btn-lg btn-block">Sign in</button>
           </router-link>
-        
+          <router-link to="/home">
+            <button class="btn btn-dark btn-lg btn-block">Register</button>
+          </router-link>
         </form>
       </div>
     </div>
@@ -38,6 +41,13 @@ export default {
   
 }
 </script>
-<style lang="">
-  
+<style>
+  .Login {
+    
+    margin-top: 25px;
+    margin-bottom: 25px;
+  }
+  .btn {
+    margin-top: 10px;
+  }
 </style>
