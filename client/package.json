@@ -9,15 +9,20 @@
   },
   "dependencies": {
     "@popperjs/core": "^2.11.6",
-    "axios": "^1.2.2",
+    "axios": "^1.2.3",
     "bootstrap": "^5.2.3",
     "bootstrap-vue": "^2.23.1",
+    "chart.js": "^4.2.0",
+    "cors": "^2.8.5",
+    "jsonwebtoken": "^9.0.0",
     "vue": "^3.2.45",
     "vue-axios": "^3.5.2",
+    "vue-chartjs": "^5.2.0",
     "vue-router": "^4.1.6"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.0.0",
+    "sass": "^1.57.1",
     "vite": "^4.0.0"
   }
 }

@@ -1,0 +1,26 @@
+
+
+#side_nav{
+    display: flex;
+    flex-direction: column;
+    width: calc(2rem + 32px );
+    min-height: 100vh;
+    overflow: hidden;
+    padding: 1rem;
+
+    background-color: rgb(46, 35, 99);
+    color: white;
+
+
+    transition: 0.2s ease-out;
+
+    @media (max-width:768px) {
+        position: fixed;
+        z-index:99;
+    }
+}
+
+.content{
+    min-height: 100vh;
+    width: 100;
+}

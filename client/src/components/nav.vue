@@ -27,7 +27,9 @@
                 <a class="nav-link " href="#" tabindex="-1" aria-disabled="true">Fillter</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link " href="#" tabindex="-1" aria-disabled="true">Dashboard</a>
+                <router-link class="nav-link no-underline " to="dashboard">
+                 Dashboard
+                </router-link>
               </li>
             </ul>
           </div>

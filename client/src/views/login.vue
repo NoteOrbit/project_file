@@ -1,5 +1,5 @@
 <template lang="">
-  <div>
+  <div class="container">
     <section class="vh-100">
   <div class="container py-5 h-100">
     <div class="row d-flex align-items-center justify-content-center h-100">
@@ -9,24 +9,24 @@
       </div>
       <div class="col-md-7 col-lg-5 col-xl-5 offset-xl-1">
         <h1 class="Login">Login system</h1>
-        <form>
+        <form @submit.prevent="login">
           <!-- Email input -->
           <div class="form-outline mb-4">
-            <input type="email" id="form1Example13" class="form-control form-control-lg" />
-            <label class="form-label" for="form1Example13">Email address</label>
+            <input type="username" id="form1Example13" v-model ='email' class="form-control form-control-lg" />
+            <label class="form-label" for="form1Example13">Username</label>
           </div>
 
           <!-- Password input -->
           <div class="form-outline mb-4">
-            <input type="password" id="form1Example23" class="form-control form-control-lg" />
+            <input type="password" id="form1Example23" v-model ='password' class="form-control form-control-lg" />
             <label class="form-label" for="form1Example23">Password</label>
           </div>
 
           <!-- Submit button -->
           <router-link to="/home">
-            <button class="btn btn-primary btn-lg btn-block">Sign in</button>
+            <button @click="login" class="btn btn-primary btn-lg btn-block">Sign in</button>
           </router-link>
-          <router-link to="/home">
+          <router-link to="/Register">
             <button class="btn btn-dark btn-lg btn-block">Register</button>
           </router-link>
         </form>
@@ -37,8 +37,32 @@
   </div>
 </template>
 <script>
+import axios from '../axios.js'
 export default {
-  
+  data() {
+    return {
+      email: '',
+      password: '',
+    }
+  },
+  methods: {
+    login() {
+      axios.post('/login', {
+        username: this.email,
+        password: this.password
+      })
+        .then(response => {
+          localStorage.setItem('token', response.data.access_token);
+          console.log(localStorage.getItem('token'))
+          console.log(response)
+          console.log(data)
+          // Do something with the token, like redirecting to a protected route
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    }
+  }
 }
 </script>
 <style>

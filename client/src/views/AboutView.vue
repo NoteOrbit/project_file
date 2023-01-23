@@ -1,11 +1,11 @@
 <template>
     <ul>
-      <li v-for="item in items">{{ item }}</li>
+      <li v-for="item in items">{{ item['store'] }}</li>
     </ul>
   </template>
   
   <script>
-  import axios from 'axios'
+  import axios from '../axios.js'
   
   export default {
     name: 'Example',
@@ -16,7 +16,7 @@
     },
     mounted () {
       axios
-        .get('https://8a08-2001-fb1-14b-4a38-2d8b-afc0-f89-2a37.ap.ngrok.io/nearby?latitude=123&longitude=123')
+        .get('/recomnear?latitude=123&longitude=123')
         .then(response => {
             console.log(response)
             this.items = response.data

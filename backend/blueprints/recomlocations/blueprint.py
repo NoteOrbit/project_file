@@ -39,5 +39,5 @@ def nearby():
     results = sorted(results, key=lambda x: x['distance'])
     for i in range(len(results)):
         results[i]['_id'] = str(results[i]['_id'])
-    return jsonify(results)
+    return jsonify(results),200
         
