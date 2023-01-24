@@ -38,6 +38,8 @@
 </template>
 <script>
 import axios from '../axios.js'
+import { mapActions } from 'vuex'
+import store from '../store'
 export default {
   data() {
     return {
@@ -54,8 +56,7 @@ export default {
         .then(response => {
           localStorage.setItem('token', response.data.access_token);
           console.log(localStorage.getItem('token'))
-          console.log(response)
-          console.log(data)
+          this.$store.dispatch('getCurrentUser')
           // Do something with the token, like redirecting to a protected route
         })
         .catch(error => {

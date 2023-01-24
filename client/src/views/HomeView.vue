@@ -1,5 +1,6 @@
 <script setup>
-// import navbar from '../components/nav.vue'
+import box from '../components/box.vue'
+import table2 from '../components/table2.vue'
 </script>
 
 
@@ -7,16 +8,11 @@
   <!-- <navbar /> -->
   <div class="container ">
     <div class="jumbotron my-3">
-      <h1 class="display-4">Hello, world!</h1>
-      <p class="lead">This is a simple hero unit, a simple jumbotron-style component for calling extra attention to
-        featured content or information.</p>
-      <hr class="my-4">
-      <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
-      <p class="lead">
-        <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
-      </p>
+      <h1 class="display-4">Welcome {{ currentUser }} 👨🏻‍💻</h1>
     </div>
-    <div class="container">
+    <box/>
+    <table2/>
+    <!-- <div class="container">
         <div class="row d-flex justify-content-center align-items-center h-100">
             <div class="col-lg-12 col-xl-11">
                 <div class="card text-black" style="border-radius: 25px;">
@@ -58,22 +54,27 @@
             </div>
         </div>
     </div>
-    
-  </div>
+     -->
 
+</div>
   <!-- </style> -->
 
 </template>
 <script>
 import axios from '../axios.js';
 import '@/assets/style.css'
+import { mapGetters } from 'vuex'
 export default {
-  name:"test",
+  computed: {
+    ...mapGetters(['currentUser'])
+  },
+  name: "test",
   data() {
     return {
-      
+
     }
   },
+
 }
 </script>
 <style>

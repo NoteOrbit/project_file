@@ -20,13 +20,14 @@ cors = CORS(app, resources={r"/*":{
 jwt = JWTManager(app) # initialize JWTManager
 app.config['JWT_SECRET_KEY'] = '38dd56f56d405e02ec0ba4be4607eaab'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(days=1)
-
+jwt.init_app(app)
 # app.register_blueprint(home_page)
 # app.register_blueprint(location_page)
+
 app.register_blueprint(recom_near)
 app.register_blueprint(recommend_rule)
 app.register_blueprint(Reg)
-app.register_blueprint(login1,url_prefix='/', app=app)
+app.register_blueprint(login1)
 
 
 if __name__ == '__main__':

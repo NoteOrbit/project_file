@@ -2,7 +2,7 @@ from flask import Flask,Blueprint
 from pymongo import MongoClient
 import hashlib
 from flask import Flask, request, jsonify
-from flask_jwt_extended import unset_jwt_cookies, jwt_required,create_access_token
+from flask_jwt_extended import unset_jwt_cookies, jwt_required,create_access_token,get_jwt_identity
 import datetime
 import hashlib
 import urllib
@@ -28,6 +28,11 @@ def login():
             # Create JWT Access Token
             access_token = create_access_token(identity=user_from_db['username']) # create jwt token
             # Return Token
-
-            return jsonify(access_token=access_token, token=access_token), 200
+            return jsonify(access_token=access_token), 200
     return jsonify({'msg': 'The username or password is incorrect'}), 401
+
+@login1.route('/protected', methods=['GET'])
+@jwt_required()
+def protected():
+    current_user = get_jwt_identity()
+    return jsonify(logged_in_as=current_user), 200
