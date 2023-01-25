@@ -10,6 +10,12 @@ from flask_cors import CORS
 
 from blueprints import *
 
+
+client = MongoClient('localhost', 27017)
+db = client['system']
+users_collection = db['user']
+
+
 app = Flask(__name__)
 CORS(app)
 cors = CORS(app, resources={r"/*":{
@@ -24,10 +30,17 @@ jwt.init_app(app)
 # app.register_blueprint(home_page)
 # app.register_blueprint(location_page)
 
+app.register_blueprint(log_system)
 app.register_blueprint(recom_near)
 app.register_blueprint(recommend_rule)
 app.register_blueprint(Reg)
 app.register_blueprint(login1)
+
+
+@app.before_request
+def before_request():
+    db.logs.insert_one({"timestamp": datetime.datetime.now(), "method": request.method, "endpoint": request.url})
+
 
 
 if __name__ == '__main__':

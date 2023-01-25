@@ -5,4 +5,4 @@ from .apiori import recommend_rule
 from .document import doc_page
 from .register import Reg
 from .login import login1
-
+from .log1 import log_system
