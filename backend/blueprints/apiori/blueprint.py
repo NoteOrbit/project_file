@@ -1,17 +1,20 @@
 import pickle
 from flask import Blueprint, render_template, request, jsonify
-import requests
 import json
 from pymongo import MongoClient
 import pandas  as pd
 import numpy as np
-
-
-with open('age_gender_rules1.pkl', 'rb') as f:
-    age_gender_rules = pickle.load(f)
+import datetime
+from scipy.sparse.linalg import svds
+from datetime import datetime
+from extensions import scheduler
+import sys
+import os
+from bson import json_util
+sys.path.append("...")
 
 recommend_rule = Blueprint('recommend_rule', __name__)
-
+client = MongoClient('localhost', 27017)
 class CFRecommender2:
     
     MODEL_NAME = 'Collaborative Filtering'
@@ -32,10 +35,30 @@ class CFRecommender2:
         recommendations_df = sorted_donor_predictions[~sorted_donor_predictions['Store'].isin(projects_to_ignore)] \
                                .sort_values('recStrength', ascending = False) \
                                .head(topn)
-        
-
 
         return recommendations_df
+
+# @recommend_rule.route('/save', methods=['POST'])
+@scheduler.task('interval', id='save_model', hours=6)
+def save_model():
+
+    db = client['Infomations']
+    users_collection = db['Transaction_user']
+    data = users_collection.find({}, {'Store':1, '_id':0,'User':1,'Rating':1})
+    df11 =  pd.DataFrame(list(data))
+    user_df = df11.pivot_table(index="User",columns="Store",values='Rating').fillna(0)
+    user_ids = list(user_df.index)
+    U, sigma, Vt = svds(user_df.values, k = 15)
+    sigma = np.diag(sigma)
+    predicted_ratings = np.dot(np.dot(U, sigma), Vt)
+    preds_df = pd.DataFrame(predicted_ratings, 
+                           columns = user_df.columns, 
+                           index=user_ids).transpose()
+    now = datetime.now()
+    filename = "preds_df_" + now.strftime("%Y_%m_%d_%H_%M_%S") + ".pkl"
+    with open('model/'+filename, 'wb') as f:
+        pickle.dump(preds_df, f)
+    return "Model Saved"
 
 @recommend_rule.route('/recommend', methods=['GET'])
 def recommend():
@@ -47,7 +70,7 @@ def recommend():
     users_collection = db['Transaction_user']
     user_check = users_collection.find_one({'User': user_name})
     if user_check:
-        with open('preds_df.pkl', 'rb') as f:
+        with open('model/preds_df_2023_01_26_01_48_24.pkl', 'rb') as f:
             preds_df_1 = pickle.load(f)
         data = users_collection.find({}, {'Store':1, '_id':0,'User':1,'Rating':1})
         df11 =  pd.DataFrame(list(data))
@@ -68,7 +91,7 @@ def recommend():
     
 @recommend_rule.route('/take', methods=['GET',"POST","UPDATE"])
 def take():
-    client = MongoClient('localhost', 27017)
+
     db = client['Infomations']
     _json = request.json
     users_collection = db['User']
@@ -90,6 +113,7 @@ def take():
         users_collection.insert_one(_json)
         age_map = mapage(age)
         rules = age_gender_rules[(age_map, gender)]
+
     # Sort the rules by lift and return the top N rules
 
         sorted_rules = rules.sort_values(by='confidence', ascending=False).head(10)
@@ -112,9 +136,8 @@ def take():
 
         return jsonify({'recommendations': recommendations})
    
-   
-   
-        # return jsonify({'msg': 'User created successfully'}), 201
+
+    # return jsonify({'msg': 'User created successfully'}), 201
     # with open('age_gender_rules1.pkl', 'rb') as f:
     #     age_gender_rules = pickle.load(f)
 
@@ -142,6 +165,26 @@ def take():
     # recommendations = [list(r) for r in sorted_rules['consequents'].tolist()]
 
     # return jsonify({'recommendations': recommendations})
+@recommend_rule.route('/type',methods=['GET'])
+def filterbytype():
+    db = client['Infomations']
+    collections = db['new_collection']
+    if request.method == "GET":
+        listtype = request.args.get("type").split(',')
+        liststore = collections.find({'type': {'$in':listtype}},{'_id':0})
+        response = json_util.dumps(liststore)
+        re = json_util.loads(response)
+        
+        return jsonify(re) 
+    else:
+        return jsonify({"error": "no method for post"}), 400
+
+
+@recommend_rule.route('/model',methods=['GET'])
+def get_model_files():
+    model_folder = 'model/'
+    files = os.listdir(model_folder)
+    return jsonify(files)
 
 @recommend_rule.route('/recommend_populations', methods=['GET'])
 def recommend1():
@@ -150,13 +193,44 @@ def recommend1():
     users_collection = db['Transaction_user']
 
     pipeline =  [
-    {"$group":{"_id":"$Store","count":{"$sum":1}}},
-                                       
-    {"$sort":{"count":-1}}
-    ]
+    {
+        "$lookup": {
+            "from": "new_collection",
+            "localField": "Store",
+            "foreignField": "store",
+            "as": "other_collection_data"
+        }
+    },
+    {
+        "$project": {
+            "Store": 1,
+            "other_collection_data": {
+                "$map": {
+                    "input": "$other_collection_data",
+                    "as": "data",
+                    "in": {
+                        "Store_name": "$$data.store",
+                        "addr": "$$data.address	",
+                        "rating":"$$data.rating",
+                        "count_rating":"$$data.count_rating",
+                    }
+                }
+            }
+        }
+    },
+    {
+        "$group": {
+            "_id": "$Store",
+            "count": {"$sum": 1},
+            "other_data": {"$first": "$other_collection_data"}
+        }
+    },
+    {"$sort": {"count": -1}}
+]
     total = users_collection.aggregate(pipeline)
+    ss = [x['other_data'][0] for x in total]
     messs = {
-        "data":[x['_id'] for x in total]
+        "data":ss
     }
     sb = json.dumps(messs)
     s = json.loads(sb)

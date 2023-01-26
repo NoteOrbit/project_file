@@ -26,7 +26,7 @@ def nearby():
 
     results = []
     R = 6371 # radius of earth in km
-    for point in collection.find({},{'_id':1,'latitude':1,'longitude':1,'store':1}):
+    for point in collection.find({},{'_id':1,'latitude':1,'longitude':1,'store':1,'rating':1,"address	":1}):
         point_lat = point["latitude"]  ## each point
         point_lon = point["longitude"] ## each point
         dlat = radians(point_lat - lat)
@@ -41,3 +41,4 @@ def nearby():
         results[i]['_id'] = str(results[i]['_id'])
     return jsonify(results),200
         
+

@@ -1,6 +1,7 @@
 <script setup>
 import box from '../components/box.vue'
 import table2 from '../components/table2.vue'
+import chart from '../components/bar.vue'
 </script>
 
 
@@ -11,7 +12,10 @@ import table2 from '../components/table2.vue'
       <h1 class="display-4">Welcome {{ currentUser }} 👨🏻‍💻</h1>
     </div>
     <box/>
-    <table2/>
+    <h1>
+        Traffic
+    </h1>
+    <chart/>
     <!-- <div class="container">
         <div class="row d-flex justify-content-center align-items-center h-100">
             <div class="col-lg-12 col-xl-11">
@@ -68,7 +72,7 @@ export default {
   computed: {
     ...mapGetters(['currentUser'])
   },
-  name: "test",
+  name: "Home",
   data() {
     return {
 

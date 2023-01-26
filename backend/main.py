@@ -7,9 +7,8 @@ import datetime
 import hashlib
 import urllib
 from flask_cors import CORS
-
 from blueprints import *
-
+from extensions import scheduler
 
 client = MongoClient('localhost', 27017)
 db = client['system']
@@ -27,15 +26,19 @@ jwt = JWTManager(app) # initialize JWTManager
 app.config['JWT_SECRET_KEY'] = '38dd56f56d405e02ec0ba4be4607eaab'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(days=1)
 jwt.init_app(app)
+scheduler.init_app(app)
+scheduler.start()
+
 # app.register_blueprint(home_page)
 # app.register_blueprint(location_page)
 
-app.register_blueprint(log_system)
+
 app.register_blueprint(recom_near)
 app.register_blueprint(recommend_rule)
 app.register_blueprint(Reg)
 app.register_blueprint(login1)
-
+app.register_blueprint(log_system)
+app.register_blueprint(general)
 
 @app.before_request
 def before_request():
@@ -44,4 +47,4 @@ def before_request():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True,host="0.0.0.0")

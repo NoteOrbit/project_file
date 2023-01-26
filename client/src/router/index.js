@@ -74,6 +74,8 @@ router.beforeEach((to, from, next) => {
     } else {
       next();
     }
+  } else if(to.path === '/') {
+    next('/home');
   } else {
     next(); // make sure to always call next()!
   }
