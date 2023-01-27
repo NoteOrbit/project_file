@@ -8,6 +8,7 @@ import datetime
 from scipy.sparse.linalg import svds
 from datetime import datetime
 from extensions import scheduler
+from apscheduler.triggers.interval import IntervalTrigger
 import sys
 import os
 
@@ -17,7 +18,6 @@ sys.path.append("...")
 recommend_rule = Blueprint('recommend_rule', __name__)
 client = MongoClient('localhost', 27017)
 modelsetup = ''
-
 class CFRecommender2:
     
     MODEL_NAME = 'Collaborative Filtering'
@@ -41,9 +41,7 @@ class CFRecommender2:
 
         return recommendations_df
 
-# @recommend_rule.route('/save', methods=['POST'])
-# @scheduler.task('interval', id='save_model', hours=6)
-@recommend_rule.route('/save', methods=['POST'])
+@recommend_rule.route('/save_cf', methods=['POST'])
 def save_model():
     _json = request.json
     values = int(_json['values'])
@@ -73,6 +71,60 @@ def save_model():
     model.insert_one(js)
 
     return jsonify({"msg":"sucesss"}),201
+
+# @scheduler.task('interval', id='save_model1', seconds=30)
+def save_model1():
+
+    db = client['Infomations']
+    users_collection = db['Transaction_user']
+    data = users_collection.find({}, {'Store':1, '_id':0,'User':1,'Rating':1})
+    df11 =  pd.DataFrame(list(data))
+    user_df = df11.pivot_table(index="User",columns="Store",values='Rating').fillna(0)
+    user_ids = list(user_df.index)
+    U, sigma, Vt = svds(user_df.values, k = 15)
+    sigma = np.diag(sigma)
+    predicted_ratings = np.dot(np.dot(U, sigma), Vt)
+    preds_df = pd.DataFrame(predicted_ratings, 
+                           columns = user_df.columns, 
+                           index=user_ids).transpose()
+    now = datetime.now()
+    filename = "preds_df_" + now.strftime("%Y_%m_%d_%H_%M_%S") + ".pkl"
+    with open('model/'+filename, 'wb') as f:
+        pickle.dump(preds_df, f)
+    systempath = client['system']
+    model = systempath['model_log']
+    js = {
+        "model_name":"CF",
+        "path":f"model/{filename}",
+        "date":datetime.now(),
+    }
+    model.insert_one(js)
+
+    return "Hlleow"
+
+scheduler.add_job(id='save_model1', func=save_model1, trigger='interval', hours=6)
+
+@recommend_rule.route('/pause_job', methods=['GET'])
+def pause_job():
+    scheduler.pause_job('save_model1')
+    return jsonify({"msg":"Job Paused"}),200
+
+
+@recommend_rule.route('/resume_job', methods=['GET'])
+def resume_job():
+    scheduler.resume_job('save_model1')
+    return jsonify({"msg":"Job Resumed"}),200
+
+@recommend_rule.route('/check_job', methods=['GET'])
+def check_job():
+    job = scheduler.get_job('save_model1')
+    if job.next_run_time:
+        return jsonify({"msg":"Job is running"}),200
+    else:
+        return jsonify({"msg":"Job is paused"}),200
+
+
+
 
 
 @recommend_rule.route('/recommend', methods=['GET'])
@@ -207,7 +259,7 @@ def recommend():
 
     # return jsonify({'recommendations': recommendations})
 
-    
+
 @recommend_rule.route('/type',methods=['GET'])
 def filterbytype():
     db = client['Infomations']

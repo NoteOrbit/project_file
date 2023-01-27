@@ -18,7 +18,6 @@
 </div>
 </div>
 <div class="container-lg my-5">
-  <h1>Apiori</h1>
   <div class="row">
     <div class="col-sm-4 p-2">
       <div class="p-3 bg-primary text-light rounded"><h1>correct </h1><span>1>>100</span></div>
@@ -31,7 +30,7 @@
     </div>
   </div>
   <hr class="mt-10 mb-1"/>
-  <h1 class="my-3">Model Versions</h1>
+
   <!-- <div>
     <div class="dropdown">
     <button
@@ -51,9 +50,24 @@
   </div>
 </div> -->
 
-    <div>
+  <div class="my-4">
+  <div class="row">
+    <span><h4>Automatic retraining</h4></span>
+    <span><p>System that will allow you to retrain the model every 6 hours.</p></span>
+    <span><h6>Status {{ Status }}</h6></span>
+    <div class="col">
+      <div class="form-check form-switch">
+        <input class="form-check-input " type="checkbox" role="switch" v-model="checked" id="flexSwitchCheckDefault" >
+        <label class="form-check-label" for="flexSwitchCheckDefault">Status</label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div v-if="checked != true">
+  <h4 class="my-3">Manual retraining</h4>
         <select v-model="selectedFile" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
-          <option value="1">Apiori</option>
+          <option value="1">Apriori</option>
           <option value="2">CF</option>
         </select>
       <div v-if="selectedFile === '1'">
@@ -94,10 +108,41 @@
           </div>
         <button  @click="submit2" class="btn btn-primary">Submit</button>
     </div>
+    
   </div>
+  <hr class="mt-10 mb-1"/>
+  <div class="my-4">
+  <div class="row">
+    <span><h4>Selected Model Verersion</h4></span>
+    <span><p>System that will use model.</p></span>
+<div class="row">
+  <div class="col">
+  <span>Apriori</span>
+  <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
+  <option selected>Open this select menu</option>
+  <option value="1">One</option>
+  <option value="2">Two</option>
+  <option value="3">Three</option>
+</select>
 
+  </div>
+  <div class="col">
+  <span>CF</span>
+  <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
+  <option selected>Open this select menu</option>
+  <option value="1">One</option>
+  <option value="2">Two</option>
+  <option value="3">Three</option>
+</select>
+  </div>
+</div>
+  </div>
+</div>
 
-
+<div class="form-floating">
+  <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px"></textarea>
+  <label for="floatingTextarea2">Comments</label>
+</div>
   <!-- Position it: -->
   <!-- - `.toast-container` for spacing between toasts -->
   <!-- - `top-0` & `end-0` to position the toasts in the upper right corner -->
@@ -122,7 +167,8 @@ export default {
       latent: 15,
       files: [],
       selectedFile: "",
-      check: ''
+      check: '',
+      checked: true
     }
   },
   methods: {
@@ -151,5 +197,6 @@ export default {
 }
 </script>
 <style lang="">
-    
+
+
 </style>

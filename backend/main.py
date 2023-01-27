@@ -13,11 +13,8 @@ from extensions import scheduler
 client = MongoClient('localhost', 27017)
 db = client['system']
 users_collection = db['user']
-
-
 app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
-
 @app.after_request
 def after_request(response):
   response.headers.add('Access-Control-Allow-Origin', '*')
