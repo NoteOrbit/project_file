@@ -16,12 +16,24 @@ users_collection = db['user']
 
 
 app = Flask(__name__)
-CORS(app)
-cors = CORS(app, resources={r"/*":{
-    'origins':"*",
-    'methods':['OPTIONS',"GET","POST","PUT"]
-}
-})
+app.config['CORS_HEADERS'] = 'Content-Type'
+
+@app.after_request
+def after_request(response):
+  response.headers.add('Access-Control-Allow-Origin', '*')
+  response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+  response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+  response.headers.add('Access-Control-Allow-Credentials', 'true')
+  return response
+
+
+# cors = CORS(app, resources={r"/*":{
+#     'origins':"*",
+#     'methods':['OPTIONS',"GET","POST","PUT"]
+    
+# }
+# })
+
 jwt = JWTManager(app) # initialize JWTManager
 app.config['JWT_SECRET_KEY'] = '38dd56f56d405e02ec0ba4be4607eaab'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(days=1)

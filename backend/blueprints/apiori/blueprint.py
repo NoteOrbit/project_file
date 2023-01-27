@@ -10,11 +10,14 @@ from datetime import datetime
 from extensions import scheduler
 import sys
 import os
+
 from bson import json_util
 sys.path.append("...")
 
 recommend_rule = Blueprint('recommend_rule', __name__)
 client = MongoClient('localhost', 27017)
+modelsetup = ''
+
 class CFRecommender2:
     
     MODEL_NAME = 'Collaborative Filtering'
@@ -39,16 +42,18 @@ class CFRecommender2:
         return recommendations_df
 
 # @recommend_rule.route('/save', methods=['POST'])
-@scheduler.task('interval', id='save_model', hours=6)
+# @scheduler.task('interval', id='save_model', hours=6)
+@recommend_rule.route('/save', methods=['POST'])
 def save_model():
-
+    _json = request.json
+    values = int(_json['values'])
     db = client['Infomations']
     users_collection = db['Transaction_user']
     data = users_collection.find({}, {'Store':1, '_id':0,'User':1,'Rating':1})
     df11 =  pd.DataFrame(list(data))
     user_df = df11.pivot_table(index="User",columns="Store",values='Rating').fillna(0)
     user_ids = list(user_df.index)
-    U, sigma, Vt = svds(user_df.values, k = 15)
+    U, sigma, Vt = svds(user_df.values, k = values)
     sigma = np.diag(sigma)
     predicted_ratings = np.dot(np.dot(U, sigma), Vt)
     preds_df = pd.DataFrame(predicted_ratings, 
@@ -58,14 +63,21 @@ def save_model():
     filename = "preds_df_" + now.strftime("%Y_%m_%d_%H_%M_%S") + ".pkl"
     with open('model/'+filename, 'wb') as f:
         pickle.dump(preds_df, f)
-    return "Model Saved"
+    systempath = client['system']
+    model = systempath['model_log']
+    js = {
+        "model_name":"CF",
+        "path":f"model/{filename}",
+        "date":datetime.now(),
+    }
+    model.insert_one(js)
+
+    return jsonify({"msg":"sucesss"}),201
+
 
 @recommend_rule.route('/recommend', methods=['GET'])
 def recommend():
-    ## name user
-    user_name = request.json['name']
-    client = MongoClient('localhost', 27017)
-    
+    user_name = request.args.get("name")
     db = client['Infomations']
     users_collection = db['Transaction_user']
     user_check = users_collection.find_one({'User': user_name})
@@ -80,61 +92,90 @@ def recommend():
         indexes = sss[sss > 0].index    
         data2 = hh.recommend_projects(user_name,indexes)
         json2 = data2['Store']
+        lista = [x for x in json2]
+        pipeline = [
+            {"$match": {"store": {"$in": lista}}},
+            {"$addFields": { "index": { "$indexOfArray": [ lista, "$store" ] } } },
+            {"$sort": {"index": 1}},
+            {"$project": {"_id":0}}
+        ]
+        store = db['new_collection']
+        results = list(store.aggregate(pipeline))
         messs = {
-            "data":[x for x in json2],
-            "previous" : [x for x in indexes]
+            "data":results,
         }
-        sb = json.dumps(messs)
-        s = json.loads(sb)
-
-        return jsonify(s), 200
-    
-@recommend_rule.route('/take', methods=['GET',"POST","UPDATE"])
-def take():
-
-    db = client['Infomations']
-    _json = request.json
-    users_collection = db['User']
-    name = _json['name']
-    gender = _json['gender']
-    age = _json['age']
-    uid = _json['uid']
-
-    with open('age_gender_rules1.pkl', 'rb') as f:
-        age_gender_rules = pickle.load(f)
-    mapage = lambda x: '10-20' if x <= 20 else '21-40' if x <= 40 else '41-60' if x <= 60 else '60+'
-
-    if name and gender and age and uid and request.method == "POST":
-        _json = request.json
-        doc = users_collection.find_one({"name": _json["name"]})
-        if doc:
-            return jsonify({'msg': 'exctied'}), 401
+        s = json.dumps(messs)
+        b = json.loads(s)
+        return jsonify(b), 200
+    else:
+        users_collection = db['User']
+        user_check = users_collection.find({'uid': user_name},{"gender":1,"age":1,"_id":0})
+        user = {}
         
-        users_collection.insert_one(_json)
-        age_map = mapage(age)
-        rules = age_gender_rules[(age_map, gender)]
+        for x in user_check:
+            user = x
 
-    # Sort the rules by lift and return the top N rules
+        mapage = lambda x: '10-20' if x <= 20 else '21-40' if x <= 40 else '41-60' if x <= 60 else '60+'
+        user['age'] = mapage(user['age'])
+
+        with open('model/age_gender_rules1.pkl', 'rb') as f:
+            age_rule = pickle.load(f)
+
+        rules = age_rule[(user['age'], user['gender'])]
+            # Sort the rules by lift and return the top N rules
 
         sorted_rules = rules.sort_values(by='confidence', ascending=False).head(10)
         recommendations = [list(r) for r in sorted_rules['consequents'].tolist()]
 
         return jsonify({'recommendations': recommendations})
     
-    if uid and request.method == "GET":
-        doc = users_collection.find({"uid": _json["uid"]})
-        age = 0
-        gender_map = ""
-        for x in doc:
-            age = x['age']
-            gender_map = x['gender']
-        age_map = mapage(age)
-        rules = age_gender_rules[(age_map, gender_map)]
-    # Sort the rules by lift and return the top N rules
-        sorted_rules = rules.sort_values(by='confidence', ascending=False).head(10)
-        recommendations = [list(r) for r in sorted_rules['consequents'].tolist()]
 
-        return jsonify({'recommendations': recommendations})
+# @recommend_rule.route('/take', methods=['GET',"POST","UPDATE"])
+# def take():
+
+#     db = client['Infomations']
+#     _json = request.json
+#     users_collection = db['User']
+#     name = _json['name']
+#     gender = _json['gender']
+#     age = _json['age']
+#     uid = _json['uid']
+
+#     with open('age_gender_rules1.pkl', 'rb') as f:
+#         age_gender_rules = pickle.load(f)
+#     mapage = lambda x: '10-20' if x <= 20 else '21-40' if x <= 40 else '41-60' if x <= 60 else '60+'
+
+#     if name and gender and age and uid and request.method == "POST":
+#         _json = request.json
+#         doc = users_collection.find_one({"name": _json["name"]})
+#         if doc:
+#             return jsonify({'msg': 'exctied'}), 401
+        
+#         users_collection.insert_one(_json)
+#         age_map = mapage(age)
+#         rules = age_gender_rules[(age_map, gender)]
+
+#     # Sort the rules by lift and return the top N rules
+
+#         sorted_rules = rules.sort_values(by='confidence', ascending=False).head(10)
+#         recommendations = [list(r) for r in sorted_rules['consequents'].tolist()]
+
+#         return jsonify({'recommendations': recommendations})
+    
+#     if uid and request.method == "GET":
+#         doc = users_collection.find({"uid": _json["uid"]})
+#         age = 0
+#         gender_map = ""
+#         for x in doc:
+#             age = x['age']
+#             gender_map = x['gender']
+#         age_map = mapage(age)
+#         rules = age_gender_rules[(age_map, gender_map)]
+#     # Sort the rules by lift and return the top N rules
+#         sorted_rules = rules.sort_values(by='confidence', ascending=False).head(10)
+#         recommendations = [list(r) for r in sorted_rules['consequents'].tolist()]
+
+#         return jsonify({'recommendations': recommendations})
    
 
     # return jsonify({'msg': 'User created successfully'}), 201
@@ -165,6 +206,8 @@ def take():
     # recommendations = [list(r) for r in sorted_rules['consequents'].tolist()]
 
     # return jsonify({'recommendations': recommendations})
+
+    
 @recommend_rule.route('/type',methods=['GET'])
 def filterbytype():
     db = client['Infomations']

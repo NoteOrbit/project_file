@@ -5,13 +5,13 @@
 <!-- Then put toasts within -->
 <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
   <div class="toast-header">
-    <img src="https://thumbs.gfycat.com/GrouchyElegantAlbacoretuna-max-1mb.gif" width="100" height="100" class="rounded me-2" alt="...">
-    <strong class="me-auto">Bootstrap</strong>
+    <span class="material-icons">update</span>
+    <strong class="me-auto">Notifications</strong>
     <small class="text-muted">just now</small>
     <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
   </div>
   <div class="toast-body">
-    you want to change model ?
+    {{check}}
   </div>
 </div>
 
@@ -31,7 +31,7 @@
     </div>
   </div>
   <hr class="mt-10 mb-1"/>
-  <h1 class="my-3">Settings</h1>
+  <h1 class="my-3">Model Versions</h1>
   <!-- <div>
     <div class="dropdown">
     <button
@@ -51,40 +51,103 @@
   </div>
 </div> -->
 
-<bar/>
-<div>
-    <select v-model="selectedFile" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
-      <option v-for="file in files" :value="file">{{ file }}</option>
-    </select>
+    <div>
+        <select v-model="selectedFile" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
+          <option value="1">Apiori</option>
+          <option value="2">CF</option>
+        </select>
+      <div v-if="selectedFile === '1'">
+        <div class="row">
+          <div class="col">
+            <label for="Support" class="form-label">Support</label>
+        <input  type="range" class="form-control-range" id="Support" v-model="Support">
+        <span ><h3>{{Support}} %</h3></span>
+          </div>
+          <div class="col">
+            <label for="Confidence" class="form-label">Confidence</label>
+            <input  type="range" class="form-control-range" id="Confidence" v-model="Confidence">
+            <span ><h3>{{Confidence}} %</h3></span>
+          </div>
+        <div class="row">
+          <div class="col">
+            <h6>Sort By</h6>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" id="radio1" name="optradio" value="option1" checked>Confidence
+              <label class="form-check-label" for="radio1"></label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" id="radio2" name="optradio" value="option2">Lift
+              <label class="form-check-label" for="radio2"></label>
+            </div>
+          </div>
+        </div>
+          </div>
+        <button @click="submit" class="btn btn-primary">Submit</button>
+    </div>
+    <div  v-if="selectedFile === '2'">
+        <div class="row">
+          <div class="col">
+            <label for="Support" class="form-label">Latent Factor</label>
+        <input  type="range" class="form-control-range" id="Support" max = 33 v-model="latent">
+        <span ><h3>K {{latent}}</h3></span>
+          </div>
+          </div>
+        <button  @click="submit2" class="btn btn-primary">Submit</button>
+    </div>
   </div>
-  <div aria-live="polite" aria-atomic="true" class="position-relative">
+
+
+
   <!-- Position it: -->
   <!-- - `.toast-container` for spacing between toasts -->
   <!-- - `top-0` & `end-0` to position the toasts in the upper right corner -->
   <!-- - `.p-3` to prevent the toasts from sticking to the edge of the container  -->
 
 
+</div>
 
-</div>
-</div>
 </template>
 <script>
-  $(document).ready(function() {
-      $(".toast").toast('show');
-  });
+
+// $(document).ready(function () {
+//   $(".toast").toast('show');
+// });
+import table from "../components/table2.vue"
 import axios from '../axios.js';
 export default {
   data() {
     return {
+      Support: 50,
+      Confidence: 50,
+      latent: 15,
       files: [],
-      selectedFile: ""
+      selectedFile: "",
+      check: ''
     }
   },
-  created() {
-    axios.get('/model').then(response => {
-      this.files = response.data;
-    });
-  }
+  methods: {
+    submit1() {
+      // Perform some action with the selected file
+      console.log(this.selectedFile)
+      console.log(this.value)
+      $(".toast").toast('show');
+    },
+    submit2() {
+      console.log(this.latent)
+      axios.post('/save', {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        },
+        values: this.latent
+      })
+        .then(response => {
+          this.check = response.data['msg']
+        })
+      $(".toast").toast('show');
+    }
+  },
+
 }
 </script>
 <style lang="">
