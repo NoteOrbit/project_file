@@ -137,11 +137,6 @@
 </div>
   </div>
 </div>
-
-<div class="form-floating">
-  <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px"></textarea>
-  <label for="floatingTextarea2">Comments</label>
-</div>
   <!-- Position it: -->
   <!-- - `.toast-container` for spacing between toasts -->
   <!-- - `top-0` & `end-0` to position the toasts in the upper right corner -->
@@ -182,6 +177,7 @@ import axios from '../axios.js';
 export default {
   data() {
     return {
+      loaded: false,
       model: [],
       Support: 50,
       Confidence: 50,
@@ -220,6 +216,7 @@ export default {
       $(".toast").toast('show');
     },
     async fetchModels() {
+      this.loaded = false
       try {
         const res = await axios.get("/getmodel");
         this.models = res.data;
@@ -271,6 +268,7 @@ export default {
       } catch (error) {
         this.checked = false
       }
+      
     }
 
 }

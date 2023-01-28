@@ -304,12 +304,6 @@ def filterbytype():
         return jsonify({"error": "no method for post"}), 400
 
 
-@recommend_rule.route('/model',methods=['GET'])
-def get_model_files():
-    model_folder = 'model/CF'
-    files = os.listdir(model_folder)
-    return jsonify(files)
-
 @recommend_rule.route('/recommend_populations', methods=['GET'])
 def recommend1():
     client = MongoClient('localhost', 27017)
