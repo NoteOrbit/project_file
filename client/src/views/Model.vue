@@ -10,8 +10,7 @@
     <small class="text-muted">just now</small>
     <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
   </div>
-  <div class="toast-body">
-    {{check}}
+  <div class="toast-body">{{this.Status.msg}}
   </div>
 </div>
 
@@ -30,7 +29,7 @@
     </div>
   </div>
   <hr class="mt-10 mb-1"/>
-
+  
   <!-- <div>
     <div class="dropdown">
     <button
@@ -57,7 +56,7 @@
     <span><h6>Status {{ Status }}</h6></span>
     <div class="col">
       <div class="form-check form-switch">
-        <input class="form-check-input " type="checkbox" role="switch" v-model="checked" id="flexSwitchCheckDefault" >
+        <input class="form-check-input " type="checkbox" role="switch" v-model="checked" @change="checkAPIStatus()" id="flexSwitchCheckDefault" >
         <label class="form-check-label" for="flexSwitchCheckDefault">Status</label>
       </div>
     </div>
@@ -147,7 +146,27 @@
   <!-- - `.toast-container` for spacing between toasts -->
   <!-- - `top-0` & `end-0` to position the toasts in the upper right corner -->
   <!-- - `.p-3` to prevent the toasts from sticking to the edge of the container  -->
-
+  <div>
+    <h1>Model Switch</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Path</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="model in models" :key="model._id" :class="{ 'selected': model === selectedModel }">
+          <td>{{ model.path }}</td>
+          <td>{{ model.date }}</td>
+          <td>
+            <button @click="switchModel(model)">Use This Model</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
 </div>
 
@@ -159,17 +178,25 @@
 // });
 import table from "../components/table2.vue"
 import axios from '../axios.js';
+
 export default {
   data() {
     return {
+      model: [],
       Support: 50,
       Confidence: 50,
       latent: 15,
       files: [],
       selectedFile: "",
       check: '',
-      checked: true
+      Status:"",
+      checked: true,
+      running: false,
+      paused: false
     }
+  },
+  created() {
+    this.fetchModels();
   },
   methods: {
     submit1() {
@@ -180,7 +207,7 @@ export default {
     },
     submit2() {
       console.log(this.latent)
-      axios.post('/save', {
+      axios.post('save_cf', {
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*'
@@ -191,8 +218,60 @@ export default {
           this.check = response.data['msg']
         })
       $(".toast").toast('show');
+    },
+    async fetchModels() {
+      try {
+        const res = await axios.get("/getmodel");
+        this.models = res.data;
+        console.log(models)
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async switchModel(model) {
+      try {
+        await axios.post("/switch_model", { path: model.path });
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async checkAPIStatus() {
+      try {
+        let response
+        if (this.checked) {
+          response = await axios.get('resume_job')
+          this.paused = true
+          this.running = false
+        } else {
+          response = await axios.get('pause_job')
+          this.paused = false
+          this.running = true
+        }
+        if (response.status === 200) {
+          this.Status = response.data
+          console.log(this.Status.msg)
+          $(".toast").toast('show');
+        }
+      } catch (error) {
+        console.log(error)
+        this.checked = !this.checked
+      }
     }
   },
+  async mounted() {
+      try {
+        const response = await axios.get('check_job')
+        if (response.status === 200) {
+          this.checked = true
+          this.Status = response.data
+        } else {
+          this.checked = false
+          this.Status = response.data
+        }
+      } catch (error) {
+        this.checked = false
+      }
+    }
 
 }
 </script>

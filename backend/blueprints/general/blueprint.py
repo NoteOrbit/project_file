@@ -1,5 +1,6 @@
 from flask import Flask, Blueprint , jsonify , request
 from pymongo import MongoClient
+import pandas as pd
 import json
 import datetime
 general = Blueprint("general",__name__)
@@ -24,6 +25,7 @@ def get_review():
             return jsonify('not in db') , 401
         else:
             collections = db['Transaction']
+            collections2 = db['Transaction_user']
             js = {
                 "uid":uid,
                 "event":"review",
@@ -34,10 +36,22 @@ def get_review():
             }
 
             user = collections.insert_one(js)
+            user = collections.find({"uid":uid,"Store":store,"event":"review"},{'Store':1, '_id':0,'uid':1,'Rating':1,"Message":1})
+            if user:
+                df12 =  pd.DataFrame(list(user))
+                dfadd = {
+                    "Store":df12["Store"].values[0],
+                    "User":df12['uid'].values[0],
+                    "Rating":df12['Rating'].values[0],
+                    "Review":df12['Message'].values[0]
+                }
+                print(dfadd)
+                martix = collections2.insert_one(dfadd)
+
             return jsonify('add review in db') ,201
+            
 
-
-@general.route('/take', methods=['GET',"POST","UPDATE"])
+@general.route('/take', methods=['GET',"POST","UPDATE"]) ## regiseter
 def take():
 
     db = client['Infomations']
@@ -57,3 +71,22 @@ def take():
         
         users_collection.insert_one(_json)
         return jsonify({'msg': 'add user'}), 201
+    
+
+@general.route('/take2', methods=['GET',"POST","UPDATE"]) ## event
+def take2():
+    db = client['Infomations']
+    _json = request.json
+    uid = _json['uid']
+    event = _json['event']
+    Content = _json['Content']
+    users_collection = db['Transactions']
+    js = {
+                "uid":uid,
+                "event":event,
+                "Content":Content,
+                "Date":datetime.datetime.now(),
+            }
+
+    user = users_collection.insert_one(js)
+    return jsonify({'msg': 'log save'}), 201

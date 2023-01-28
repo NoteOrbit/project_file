@@ -1,5 +1,5 @@
 import pickle
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, request, jsonify 
 import json
 from pymongo import MongoClient
 import pandas  as pd
@@ -17,7 +17,9 @@ sys.path.append("...")
 
 recommend_rule = Blueprint('recommend_rule', __name__)
 client = MongoClient('localhost', 27017)
-modelsetup = ''
+
+
+
 class CFRecommender2:
     
     MODEL_NAME = 'Collaborative Filtering'
@@ -40,6 +42,36 @@ class CFRecommender2:
                                .head(topn)
 
         return recommendations_df
+    
+@recommend_rule.route('/getmodel')
+def get_models():
+    db = client['system']
+    model_collection = db['model_log']
+    models = model_collection.find({}, {"path": 1, "date": 1,"model_name":1}).sort("date", -1)
+    models = list(models)
+    for model in models:
+        model["_id"] = str(model["_id"])
+    return jsonify(models)
+
+
+@recommend_rule.route('/switch_model', methods=['POST'])
+def switch_model():
+    # get the path of the selected model from the client's request
+    selected_model_path = request.json['path']
+    
+    # use the selected model path to load the appropriate model
+    with open(selected_model_path, 'rb') as f:
+        model = pickle.load(f)
+    
+    # update the global variable that stores the current model
+    global current_model
+    current_model = model
+    
+    return jsonify({'message': 'Model successfully switched'})
+
+
+
+
 
 @recommend_rule.route('/save_cf', methods=['POST'])
 def save_model():
@@ -59,13 +91,13 @@ def save_model():
                            index=user_ids).transpose()
     now = datetime.now()
     filename = "preds_df_" + now.strftime("%Y_%m_%d_%H_%M_%S") + ".pkl"
-    with open('model/'+filename, 'wb') as f:
+    with open('model/CF/'+filename, 'wb') as f:
         pickle.dump(preds_df, f)
     systempath = client['system']
     model = systempath['model_log']
     js = {
         "model_name":"CF",
-        "path":f"model/{filename}",
+        "path":f"model/CF/{filename}",
         "date":datetime.now(),
     }
     model.insert_one(js)
@@ -89,13 +121,13 @@ def save_model1():
                            index=user_ids).transpose()
     now = datetime.now()
     filename = "preds_df_" + now.strftime("%Y_%m_%d_%H_%M_%S") + ".pkl"
-    with open('model/'+filename, 'wb') as f:
+    with open('model/CF/'+filename, 'wb') as f:
         pickle.dump(preds_df, f)
     systempath = client['system']
     model = systempath['model_log']
     js = {
         "model_name":"CF",
-        "path":f"model/{filename}",
+        "path":f"model/CF/{filename}",
         "date":datetime.now(),
     }
     model.insert_one(js)
@@ -121,9 +153,7 @@ def check_job():
     if job.next_run_time:
         return jsonify({"msg":"Job is running"}),200
     else:
-        return jsonify({"msg":"Job is paused"}),200
-
-
+        return jsonify({"msg":"Job is paused"}),203
 
 
 
@@ -134,8 +164,7 @@ def recommend():
     users_collection = db['Transaction_user']
     user_check = users_collection.find_one({'User': user_name})
     if user_check:
-        with open('model/preds_df_2023_01_26_01_48_24.pkl', 'rb') as f:
-            preds_df_1 = pickle.load(f)
+        preds_df_1 = current_model
         data = users_collection.find({}, {'Store':1, '_id':0,'User':1,'Rating':1})
         df11 =  pd.DataFrame(list(data))
         user_df = df11.pivot_table(index="User",columns="Store",values='Rating').fillna(0)
@@ -277,7 +306,7 @@ def filterbytype():
 
 @recommend_rule.route('/model',methods=['GET'])
 def get_model_files():
-    model_folder = 'model/'
+    model_folder = 'model/CF'
     files = os.listdir(model_folder)
     return jsonify(files)
 
