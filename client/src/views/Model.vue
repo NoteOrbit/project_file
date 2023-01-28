@@ -16,8 +16,8 @@
 
 </div>
 </div>
-<div class="container-lg my-5">
-  <div class="row">
+<div class="container-lg my-2">
+  <!-- <div class="row">
     <div class="col-sm-4 p-2">
       <div class="p-3 bg-primary text-light rounded"><h1>correct </h1><span>1>>100</span></div>
     </div>
@@ -28,7 +28,7 @@
       <div class="p-3 bg-danger text-light rounded"><h1>Recom </h1><span>3>>300</span></div>
     </div>
   </div>
-  <hr class="mt-10 mb-1"/>
+  <hr class="mt-10 mb-1"/> -->
   
   <!-- <div>
     <div class="dropdown">

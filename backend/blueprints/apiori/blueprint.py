@@ -71,8 +71,6 @@ def switch_model():
 
 
 
-
-
 @recommend_rule.route('/save_cf', methods=['POST'])
 def save_model():
     _json = request.json
