@@ -1,20 +1,29 @@
 from flask import Flask
 from pymongo import MongoClient
-import hashlib
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify ,current_app
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
 import datetime
-import hashlib
-import urllib
 from flask_cors import CORS
 from blueprints import *
 from extensions import scheduler
 
-client = MongoClient('localhost', 27017)
-db = client['system']
-users_collection = db['user']
+
 app = Flask(__name__)
+
+client = MongoClient('localhost', 27017)
 app.config['CORS_HEADERS'] = 'Content-Type'
+setup_db = client['system']
+setup_model = setup_db['model_log']
+db = client['system']
+model_cf = setup_model.find({}, {"path": 1, '_id': 0}).sort([("_id", -1)]).limit(1)
+setup_model_cf = [x for x in model_cf]
+app.config['path'] = setup_model_cf[0]['path']
+# db = client['system']
+# setup = db['model_log']
+# app.config['setup'] = ''
+
+
+
 @app.after_request
 def after_request(response):
   response.headers.add('Access-Control-Allow-Origin', '*')
@@ -37,6 +46,7 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(days=1)
 jwt.init_app(app)
 scheduler.init_app(app)
 scheduler.start()
+
 
 # app.register_blueprint(home_page)
 # app.register_blueprint(location_page)

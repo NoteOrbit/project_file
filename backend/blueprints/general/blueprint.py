@@ -1,8 +1,9 @@
-from flask import Flask, Blueprint , jsonify , request
+from flask import Flask, Blueprint , jsonify , request , current_app
 from pymongo import MongoClient
 import pandas as pd
 import json
 import datetime
+import hashlib
 general = Blueprint("general",__name__)
 
 client = MongoClient("mongodb://localhost:27017/")
@@ -81,11 +82,16 @@ def take2():
     event = _json['event']
     Content = _json['Content']
     users_collection = db['Transactions']
+    hash_object = hashlib.sha256(current_app.config['path'].encode())
+    hex_dig = hash_object.hexdigest()
     js = {
+                
                 "uid":uid,
                 "event":event,
                 "Content":Content,
                 "Date":datetime.datetime.now(),
+                "Path":current_app.config['path'],
+                "recomend_id":hex_dig
             }
 
     user = users_collection.insert_one(js)

@@ -1,23 +1,32 @@
 import pickle
-from flask import Blueprint, request, jsonify 
+from flask import Blueprint, request, jsonify , current_app
 import json
 from pymongo import MongoClient
 import pandas  as pd
 import numpy as np
-import datetime
+import hashlib
 from scipy.sparse.linalg import svds
 from datetime import datetime
 from extensions import scheduler
-from apscheduler.triggers.interval import IntervalTrigger
 import sys
-import os
-
 from bson import json_util
-sys.path.append("...")
+
 
 recommend_rule = Blueprint('recommend_rule', __name__)
 client = MongoClient('localhost', 27017)
+setup_db = client['system']
+setup_model = setup_db['model_log']
+model_cf = setup_model.find({}, {"path": 1, '_id': 0}).sort([("_id", -1)]).limit(1)
+setup_model_cf = [x for x in model_cf]
+sys.path.append("...")
+# current_app.config['setup_cf'] = setup_model_cf[0]['path']
+# print(current_app.config['setup_cf'])
+global current_model
+global path_current
+path_current = setup_model_cf[0]['path']
 
+with open(setup_model_cf[0]['path'], 'rb') as f:
+    current_model = pickle.load(f)
 
 
 class CFRecommender2:
@@ -54,6 +63,7 @@ def get_models():
     return jsonify(models)
 
 
+
 @recommend_rule.route('/switch_model', methods=['POST'])
 def switch_model():
     # get the path of the selected model from the client's request
@@ -64,11 +74,11 @@ def switch_model():
         model = pickle.load(f)
     
     # update the global variable that stores the current model
-    global current_model
     current_model = model
-    
-    return jsonify({'message': 'Model successfully switched'})
+    path_current = selected_model_path
+    current_app.config['path'] = path_current
 
+    return jsonify({'message': 'Model successfully switched'})
 
 
 @recommend_rule.route('/save_cf', methods=['POST'])
@@ -180,11 +190,32 @@ def recommend():
         ]
         store = db['new_collection']
         results = list(store.aggregate(pipeline))
+        results.append(current_app.config['path'])
         messs = {
             "data":results,
         }
         s = json.dumps(messs)
         b = json.loads(s)
+
+
+        log = client['system']
+        log_system = log['recommendations']
+        hash_object = hashlib.sha256(current_app.config['path'].encode())
+        hex_dig = hash_object.hexdigest()
+        data_log = {
+            "recommend_id":hex_dig,
+            "uid":user_name,
+            "recommend_item":lista,
+            "path_model":current_app.config['path'],
+            "date":datetime.now()
+            }
+
+        check_user = log_system.find_one({"uid":user_name,"recommend_id":hex_dig})
+        if not check_user:
+             log_system.insert_one(data_log)
+        else:
+             pass
+
         return jsonify(b), 200
     else:
         users_collection = db['User']

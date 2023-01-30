@@ -13,7 +13,6 @@
   <div class="toast-body">{{this.Status.msg}}
   </div>
 </div>
-
 </div>
 </div>
 <div class="container-lg my-2">
