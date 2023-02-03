@@ -10,10 +10,11 @@ from datetime import datetime
 from extensions import scheduler
 import sys
 from bson import json_util
+from config import client
 
 
 recommend_rule = Blueprint('recommend_rule', __name__)
-client = MongoClient('localhost', 27017)
+# client = MongoClient('mongodb://0.tcp.ap.ngrok.io:17474', 27017)
 setup_db = client['system']
 setup_model = setup_db['model_log']
 model_cf = setup_model.find({}, {"path": 1, '_id': 0}).sort([("_id", -1)]).limit(1)

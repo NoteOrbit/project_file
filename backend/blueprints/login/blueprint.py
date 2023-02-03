@@ -1,15 +1,12 @@
 from flask import Flask,Blueprint
-from pymongo import MongoClient
 import hashlib
 from flask import Flask, request, jsonify
 from flask_jwt_extended import unset_jwt_cookies, jwt_required,create_access_token,get_jwt_identity
-import datetime
 import hashlib
-import urllib
-import jwt
+from config import client
 
 
-client = MongoClient('localhost', 27017)
+# client = MongoClient('mongodb://0.tcp.ap.ngrok.io:17474', 27017)
 login1 = Blueprint('login', __name__)
 db = client['system']
 users_collection = db['user']

@@ -4,9 +4,11 @@ import pandas as pd
 import json
 import datetime
 import hashlib
+from config import client
 general = Blueprint("general",__name__)
 
-client = MongoClient("mongodb://localhost:27017/")
+# client = MongoClient("mongodb://0.tcp.ap.ngrok.io:17474")
+
 db = client['Infomations']
 
 @general.route('/review',methods=['GET',"POST","UPDATE"])

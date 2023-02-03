@@ -3,9 +3,9 @@ from flask import Blueprint, render_template, request, jsonify
 import requests
 import json
 from pymongo import MongoClient 
-
+from config import client
 ## set up  db 
-client = MongoClient('localhost', 27017)
+# client = MongoClient('mongodb://0.tcp.ap.ngrok.io:17474', 27017)
 
 recom_near = Blueprint('recome_near',__name__)
 
