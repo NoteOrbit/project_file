@@ -26,9 +26,9 @@
           <router-link to="/home">
             <button @click="login" class="btn btn-primary btn-lg btn-block">Sign in</button>
           </router-link>
-          <router-link to="/Register">
+          <!-- <router-link to="/Register">
             <button class="btn btn-dark btn-lg btn-block">Register</button>
-          </router-link>
+          </router-link> -->
         </form>
       </div>
     </div>
