@@ -18,10 +18,10 @@
 				<span class="material-icons">home</span>
 				<span class="text">Home</span>
 			</router-link>
-			<router-link to="/about" class="button">
+			<!-- <router-link to="/about" class="button">
 				<span class="material-icons">terminal</span>
 				<span class="text">About</span>
-			</router-link>
+			</router-link> -->
 			<router-link to="/Model" class="button">
 				<span class="material-icons">model_training</span>
 				<span class="text">Model</span>

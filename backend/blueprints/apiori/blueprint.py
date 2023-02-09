@@ -10,10 +10,11 @@ from datetime import datetime
 from extensions import scheduler
 import sys
 from bson import json_util
+from config import client
 
 
 recommend_rule = Blueprint('recommend_rule', __name__)
-client = MongoClient('localhost', 27017)
+# client = MongoClient('mongodb://0.tcp.ap.ngrok.io:17474', 27017)
 setup_db = client['system']
 setup_model = setup_db['model_log']
 model_cf = setup_model.find({}, {"path": 1, '_id': 0}).sort([("_id", -1)]).limit(1)
@@ -172,7 +173,7 @@ def recommend():
     users_collection = db['Transaction_user']
     user_check = users_collection.find_one({'User': user_name})
     if user_check:
-        preds_df_1 = current_model
+        preds_df_1 = current_model ## set up model
         data = users_collection.find({}, {'Store':1, '_id':0,'User':1,'Rating':1})
         df11 =  pd.DataFrame(list(data))
         user_df = df11.pivot_table(index="User",columns="Store",values='Rating').fillna(0)

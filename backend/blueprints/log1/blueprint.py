@@ -6,9 +6,9 @@ from flask_jwt_extended import unset_jwt_cookies, jwt_required,create_access_tok
 from datetime import datetime, timedelta
 import hashlib
 import json
+from config import client
 
-
-client = MongoClient('localhost', 27017)
+# client = MongoClient('mongodb://0.tcp.ap.ngrok.io:17474', 27017)
 db = client['system']
 users_collection = db['logs']
 

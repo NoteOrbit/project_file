@@ -1,19 +1,8 @@
 <template lang="">
 <div>
-  <div class="toast-container top-0 end-0 p-3">
-
-<!-- Then put toasts within -->
-<div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-  <div class="toast-header">
-    <span class="material-icons">update</span>
-    <strong class="me-auto">Notifications</strong>
-    <small class="text-muted">just now</small>
-    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+  <div>
+    <toast-component ref="toast" :msg="Status" @show-toast="showToast"></toast-component>
   </div>
-  <div class="toast-body">{{this.Status.msg}}
-  </div>
-</div>
-</div>
 </div>
 <div class="container-lg my-2">
   <!-- <div class="row">
@@ -140,9 +129,9 @@
   <!-- - `.toast-container` for spacing between toasts -->
   <!-- - `top-0` & `end-0` to position the toasts in the upper right corner -->
   <!-- - `.p-3` to prevent the toasts from sticking to the edge of the container  -->
-  <div>
+  <!-- <div>
     <h1>Model Switch</h1>
-    <table>
+    <table class="table">
       <thead>
         <tr>
           <th>Path</th>
@@ -151,16 +140,56 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="model in models" :key="model._id" :class="{ 'selected': model === selectedModel }">
+        <tr v-for="model in models" :key="model._id" :class="{ 'table-active': model === selectedModel }">
           <td>{{ model.path }}</td>
           <td>{{ model.date }}</td>
           <td>
-            <button @click="switchModel(model)">Use This Model</button>
+            <button class="btn btn-primary" @click="switchModel(model)">Use This Model</button>
+            <button class="btn btn-danger" @click="deleteModel(model)">Delete</button>
           </td>
         </tr>
       </tbody>
     </table>
+  </div> -->
+
+
+  
+  <div>
+    <h1>Model Switch</h1>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Path</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="model in currentModels" :key="model._id" :class="{ 'table-active': model === selectedFile }">
+          <td>{{ model.path }}</td>
+          <td>{{ model.date }}</td>
+          <td>
+            <button class="btn btn-primary mr-2" @click="switchModel(model)">Use This Model</button>
+            <!-- <button class="btn btn-danger" @click="deleteModel(model)">Delete</button> -->
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <nav aria-label="Page navigation">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" :class="{ disabled: currentPage === 1 }">
+          <a class="page-link" href="#" @click.prevent="goToPage(currentPage - 1)">Previous</a>
+        </li>
+        <li class="page-item" v-for="page in pages" :key="page" :class="{ active: currentPage === page }">
+          <a class="page-link" href="#" @click.prevent="goToPage(page)">{{ page }}</a>
+        </li>
+        <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+          <a class="page-link" href="#" @click.prevent="goToPage(currentPage + 1)">Next</a>
+        </li>
+      </ul>
+    </nav>
   </div>
+
 
 </div>
 
@@ -172,22 +201,29 @@
 // });
 import table from "../components/table2.vue"
 import axios from '../axios.js';
+import ToastComponent from '../components/noti.vue'
 
 export default {
+  components: {
+    ToastComponent
+  },
   data() {
     return {
+      statusMessage: '',
       loaded: false,
-      model: [],
+      models: [],
       Support: 50,
       Confidence: 50,
       latent: 15,
       files: [],
       selectedFile: "",
       check: '',
-      Status:"",
+      Status: "",
       checked: true,
       running: false,
-      paused: false
+      paused: false,
+      pageSize: 5,
+      currentPage: 1,
     }
   },
   created() {
@@ -219,7 +255,6 @@ export default {
       try {
         const res = await axios.get("/getmodel");
         this.models = res.data;
-        console.log(models)
       } catch (error) {
         console.log(error);
       }
@@ -232,6 +267,7 @@ export default {
       }
     },
     async checkAPIStatus() {
+      console.log(this.Status)
       try {
         let response
         if (this.checked) {
@@ -246,29 +282,56 @@ export default {
         if (response.status === 200) {
           this.Status = response.data
           console.log(this.Status.msg)
-          $(".toast").toast('show');
+          this.statusMessage = this.Status.msg
+          this.showToast()
+
+          
         }
       } catch (error) {
         console.log(error)
         this.checked = !this.checked
       }
-    }
+    },
+    showToast() {
+      this.$refs.toast.showToast = true
+    },
+
+    goToPage(page) {
+      
+      this.currentPage = page;
+  }
   },
   async mounted() {
-      try {
-        const response = await axios.get('check_job')
-        if (response.status === 200) {
-          this.checked = true
-          this.Status = response.data
-        } else {
-          this.checked = false
-          this.Status = response.data
-        }
-      } catch (error) {
+    try {
+      const response = await axios.get('check_job')
+      if (response.status === 200) {
+        this.checked = true
+        this.Status = response.data
+      } else {
         this.checked = false
+        this.Status = response.data
       }
-      
+    } catch (error) {
+      this.checked = false
     }
+
+  },
+  computed: {
+    totalPages() {
+      
+      return Math.ceil(this.models.length / this.pageSize)
+    },
+    pages() {
+      console.log(this.totalPages)
+      return Array.from({ length: this.totalPages }, (_, i) => i + 1)
+    },
+    currentModels() {
+      
+      const startIndex = (this.currentPage - 1) * this.pageSize
+      console.log(startIndex)
+      return this.models.slice(startIndex, startIndex + this.pageSize)
+    }
+  },
 
 }
 </script>
