@@ -173,7 +173,7 @@ def recommend():
     users_collection = db['Transaction_user']
     user_check = users_collection.find_one({'User': user_name})
     if user_check:
-        preds_df_1 = current_model
+        preds_df_1 = current_model ## set up model
         data = users_collection.find({}, {'Store':1, '_id':0,'User':1,'Rating':1})
         df11 =  pd.DataFrame(list(data))
         user_df = df11.pivot_table(index="User",columns="Store",values='Rating').fillna(0)
