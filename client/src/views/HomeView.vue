@@ -2,21 +2,42 @@
 import box from '../components/box.vue'
 import table2 from '../components/table2.vue'
 import chart from '../components/bar.vue'
+import piechart from '../components/piechart.vue'
 </script>
 
-
 <template>
-  <!-- <navbar /> -->
-  <div class="container ">
-    <div class="jumbotron my-3">
-      <h1 class="display-4">Welcome {{ currentUser }} 👨🏻‍💻</h1>
-    </div>
-    <box/>
-    <h1>
-        Traffic
-    </h1>
-    <chart/>
-    <!-- <div class="container">
+    <!-- <navbar /> -->
+
+    <q-layout>
+
+        <q-page-container>
+            <q-page>
+                <div class="q-pa-md ">
+                    <div class="q-pa-md q-mb-xl bg-grey-10 rounded ">
+                        <h2 class="flex flex-center text-white">Welcome {{ currentUser }} 👨🏻‍💻</h2>
+                    </div>
+                    <div>
+                        <box />
+                    </div>
+
+                    <q-page-container>
+
+                        <div class="row justify-content-between">
+                            <piechart class="col-xs-12 col-sm-6 col-md-3" />
+                            <chart class="col-xs-12 col-sm-6 col-md-7" />
+                        </div>
+                    </q-page-container>
+
+
+
+
+                    <!-- <div class="row-inline">
+                            <chart/>
+                            <piechart />
+                        </div>
+                        <chart/> -->
+
+                    <!-- <div class="container">
         <div class="row d-flex justify-content-center align-items-center h-100">
             <div class="col-lg-12 col-xl-11">
                 <div class="card text-black" style="border-radius: 25px;">
@@ -60,24 +81,30 @@ import chart from '../components/bar.vue'
     </div>
      -->
 
-</div>
-  <!-- </style> -->
-
+                </div>
+                <!-- </style> -->
+            </q-page>
+        </q-page-container>
+    </q-layout>
 </template>
 <script>
 import axios from '../axios.js';
-import '@/assets/style.css'
+import '../assets/style.css'
 import { mapGetters } from 'vuex'
-export default {
-  computed: {
-    ...mapGetters(['currentUser'])
-  },
-  name: "Home",
-  data() {
-    return {
 
-    }
-  },
+export default {
+    components: {
+        piechart
+    },
+    computed: {
+        ...mapGetters(['currentUser'])
+    },
+    name: "Home",
+    data() {
+        return {
+
+        }
+    },
 
 }
 </script>

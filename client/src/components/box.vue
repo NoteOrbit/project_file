@@ -1,22 +1,23 @@
-<template >
-    <div>
-        <div class="container-lg my-2">
-              <div class="row">
-    <div class="col-sm-4 p-2" v-for="item in data.data" :key="item._id">
-      <div class="p-3 bg-dark text-light rounded">
-      <h1>{{ item._id }}</h1>
-      <h6>NUMBER {{ item._id }} {{ item.count }}</h6>
-      </div>
-    </div>
-  </div>
-  </div>
-    </div>
+<template>
+  
+
+  <q-row class="row justify-around  q-gutter-sm">
+    
+    <q-card class="my-card " v-for="item in data.data" :key="item._id"  style="width: 500px">
+
+        <q-card-section>
+          <h5>{{ item._id }}</h5>
+          <h6>NUMBER {{ item._id }} {{ item.count }}</h6>
+        </q-card-section>
+
+    </q-card>
+  </q-row>
 </template>
 <script>
 import axios from '../axios.js';
 
 export default {
-  name : "box",
+  name: "box",
   data() {
     return {
       data: []
@@ -24,13 +25,13 @@ export default {
   },
   created() {
     axios.get('logbox')
-    .then(response => {
-      this.data = response.data
+      .then(response => {
+        this.data = response.data
 
-    })
-    .catch(error => {
-      console.log(error)
-    })
+      })
+      .catch(error => {
+        console.log(error)
+      })
   }
 }
 </script>

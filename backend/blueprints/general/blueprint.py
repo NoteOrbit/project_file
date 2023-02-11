@@ -98,3 +98,27 @@ def take2():
 
     user = users_collection.insert_one(js)
     return jsonify({'msg': 'log save'}), 201
+
+
+@general.route('/overview', methods=['GET',"POST","UPDATE"]) ## event
+def overview():
+    db = client['Infomations']
+    _json = request.json
+    uid = _json['uid']
+    event = _json['event']
+    Content = _json['Content']
+    users_collection = db['Transactions']
+    hash_object = hashlib.sha256(current_app.config['path'].encode())
+    hex_dig = hash_object.hexdigest()
+    js = {
+                
+                "uid":uid,
+                "event":event,
+                "Content":Content,
+                "Date":datetime.datetime.now(),
+                "Path":current_app.config['path'],
+                "recomend_id":hex_dig
+            }
+
+    user = users_collection.insert_one(js)
+    return jsonify({'msg': 'log save'}), 201

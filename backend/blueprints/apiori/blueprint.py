@@ -11,13 +11,15 @@ from extensions import scheduler
 import sys
 from bson import json_util
 from config import client
-
-
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori
+from mlxtend.frequent_patterns import association_rules
+import pprint
 recommend_rule = Blueprint('recommend_rule', __name__)
 # client = MongoClient('mongodb://0.tcp.ap.ngrok.io:17474', 27017)
 setup_db = client['system']
 setup_model = setup_db['model_log']
-model_cf = setup_model.find({}, {"path": 1, '_id': 0}).sort([("_id", -1)]).limit(1)
+model_cf = setup_model.find({"model_name": "CF"}, {"path": 1, '_id': 0}).sort([("_id", -1)]).limit(1)
 setup_model_cf = [x for x in model_cf]
 sys.path.append("...")
 # current_app.config['setup_cf'] = setup_model_cf[0]['path']
@@ -57,7 +59,7 @@ class CFRecommender2:
 def get_models():
     db = client['system']
     model_collection = db['model_log']
-    models = model_collection.find({}, {"path": 1, "date": 1,"model_name":1}).sort("date", -1)
+    models = model_collection.find({}, ).sort("date", -1)
     models = list(models)
     for model in models:
         model["_id"] = str(model["_id"])
@@ -79,7 +81,7 @@ def switch_model():
     path_current = selected_model_path
     current_app.config['path'] = path_current
 
-    return jsonify({'message': 'Model successfully switched'})
+    return jsonify({'message': 'Model successfully switched'},200)
 
 
 @recommend_rule.route('/save_cf', methods=['POST'])
@@ -102,12 +104,20 @@ def save_model():
     filename = "preds_df_" + now.strftime("%Y_%m_%d_%H_%M_%S") + ".pkl"
     with open('model/CF/'+filename, 'wb') as f:
         pickle.dump(preds_df, f)
+
+
+    mse = np.mean((user_df.values - predicted_ratings)**2)
+    mse = np.round(mse, 4)
+
     systempath = client['system']
     model = systempath['model_log']
     js = {
         "model_name":"CF",
         "path":f"model/CF/{filename}",
         "date":datetime.now(),
+        "setting":{"K":values},
+        "measures":{"mse":mse,
+                    }
     }
     model.insert_one(js)
 
@@ -144,6 +154,114 @@ def save_model1():
     return "Hlleow"
 
 scheduler.add_job(id='save_model1', func=save_model1, trigger='interval', hours=6)
+
+@recommend_rule.route('/save_as', methods=['POST'])
+def savemodelsa():
+    _json = request.json
+    support_values = int(_json['sup'])
+    metric = _json['metric']
+    confidence_values = int(_json['con'])
+    base_on = _json['base_on'] 
+    pipeline = [
+        {
+            '$lookup': {
+                'from': "Transactions",
+                'localField': "uid",
+                'foreignField': "uid",
+                'as': "combined_documents"
+            }
+        },
+        {
+            '$match': { 'combined_documents.event': base_on }
+        },
+        {
+            '$unwind': "$combined_documents"
+        },
+        {
+            '$match': { 'combined_documents.event': base_on }
+        },
+        {
+            '$group': {
+                '_id': "$_id",
+                'name': { '$first': "$name" },
+                'Gender': { '$first': "$gender" },
+                'Age': { '$first': "$age" },
+                'Store': {
+                    '$addToSet': "$combined_documents.Content"
+                }
+            }
+        }
+    ]
+
+    """
+    
+    setup db for retrain asscations rule
+
+    """
+    if support_values and metric and confidence_values and base_on:
+        db = client['Infomations']
+        collections = db['User']
+        data = list(collections.aggregate(pipeline)) ## pipeline data
+        df1 = pd.DataFrame(data) ## Create table for retraining
+        df1 = df1.iloc[0:,[3,2,4]] ## remove coulume not use
+        df1["Gender"] = df1["Gender"].apply(lambda x:x.lower())  ## setup lower case text
+
+        """
+        setup  load previous data
+        
+        """
+        
+        old_data = pd.read_csv("data/Form.csv")
+        old_data = old_data.iloc[0:,[1,2,3]] ## remove coulume not use
+        old_data['Store'] = old_data['Store'].apply(lambda x: x.split(","))
+        print(old_data)
+        old_data = old_data.append(df1,ignore_index=True) ## append data to previouse data
+        
+        old_data['age_group'] = old_data['Age'].apply(lambda x: '10-20' if x <= 20 else '21-40' if x <= 40 else '41-60' if x <= 60 else '60+')
+
+        age_groups = old_data.groupby('age_group')
+        age_gender_rules = {}
+
+        # Run the Apriori algorithm and generate association rules for each age group and gender
+        try:
+            for age_group, data in age_groups:
+                for gender, gender_data in data.groupby('Gender'):
+                    # Use the TransactionEncoder to convert the data into a suitable format for the Apriori algorithm
+                    te = TransactionEncoder()
+                    te_ary = te.fit(gender_data['Store']).transform(gender_data['Store'])
+                    df_temp = pd.DataFrame(te_ary, columns=te.columns_)
+
+                    # Run the Apriori algorithm to find frequent item sets
+                    frequent_itemsets = apriori(df_temp, min_support=support_values/100, use_colnames=True)
+
+                    # Generate association rules from the frequent item sets
+                    rules = association_rules(frequent_itemsets, metric=metric, min_threshold=confidence_values/100)
+                    # Store the association rules for each age group and gender in the dictionary
+                    age_gender_rules[(age_group, gender)] = rules
+
+            now = datetime.now()
+            filename = "association" + now.strftime("%Y_%m_%d_%H_%M_%S") + ".pkl"
+            with open('model/apiori/'+filename, 'wb') as f:
+                pickle.dump(age_gender_rules, f)
+                systempath = client['system']
+            model = systempath['model_log']
+            js = {
+                "model_name":"association_rule",
+                "path":f"model/apiori/{filename}",
+                "date":datetime.now(),
+                "setting":{"metric":metric,
+                           "support":support_values,
+                           "confidence":confidence_values,
+                           "baseon":base_on
+                           },
+            }
+            model.insert_one(js)
+            return jsonify({"msg":"Train"}),201
+        except:
+            return jsonify({"msg":"error"}),400
+    else:
+        return jsonify({"msg":"no key"}),400
+
 
 @recommend_rule.route('/pause_job', methods=['GET'])
 def pause_job():
@@ -183,6 +301,7 @@ def recommend():
         data2 = hh.recommend_projects(user_name,indexes)
         json2 = data2['Store']
         lista = [x for x in json2]
+        print(lista)
         pipeline = [
             {"$match": {"store": {"$in": lista}}},
             {"$addFields": { "index": { "$indexOfArray": [ lista, "$store" ] } } },
@@ -194,6 +313,7 @@ def recommend():
         results.append(current_app.config['path'])
         messs = {
             "data":results,
+            "model":"SVDS"
         }
         s = json.dumps(messs)
         b = json.loads(s)
@@ -228,17 +348,41 @@ def recommend():
 
         mapage = lambda x: '10-20' if x <= 20 else '21-40' if x <= 40 else '41-60' if x <= 60 else '60+'
         user['age'] = mapage(user['age'])
-
-        with open('model/age_gender_rules1.pkl', 'rb') as f:
+        user['gender'] = user['gender'].lower()
+        with open('model/apiori/association2023_02_11_19_44_01.pkl', 'rb') as f:
             age_rule = pickle.load(f)
 
-        rules = age_rule[(user['age'], user['gender'])]
-            # Sort the rules by lift and return the top N rules
+        rules = age_rule[(user['age'], user['gender'].lower())].sort_values(by='confidence', ascending=False)
 
-        sorted_rules = rules.sort_values(by='confidence', ascending=False).head(10)
-        recommendations = [list(r) for r in sorted_rules['consequents'].tolist()]
 
-        return jsonify({'recommendations': recommendations})
+        recommended_items = set()
+        for index, row in rules.head(15).iterrows():
+            recommended_items.add(row["consequents"])
+        recommended_items = list(recommended_items)
+        recommended_items = [list(item) for item in recommended_items]
+        re = set()
+        for a in recommended_items:
+            da = set([ss.strip() for ss in a])
+            re.update(da)
+        lista = list(re)
+        print(lista)
+        pipeline = [
+            {"$match": {"store": {"$in": lista}}},
+            {"$addFields": { "index": { "$indexOfArray": [ lista, "$store" ] } } },
+            {"$sort": {"index": 1}},
+            {"$project": {"_id":0}}
+        ]
+
+        store = db['new_collection']
+        results = list(store.aggregate(pipeline))
+        messs = {
+            "data":results,
+            "model":"association rule"
+        }
+        s = json.dumps(messs)
+        b = json.loads(s)
+
+        return jsonify(b)
     
 
 # @recommend_rule.route('/take', methods=['GET',"POST","UPDATE"])

@@ -5,6 +5,7 @@
 		</div>
 		<div>
 			<p>Logged in as: {{ currentUser }}</p>
+			<p>Current date : {{ currentDateTime }}</p>
 		</div>
 		<div class="menu-toggle-wrap">
 			<button class="menu-toggle" @click="ToggleMenu">
@@ -63,15 +64,25 @@ const ToggleMenu = () => {
 
 <script>
 export default {
+	currentDateTime: '',
 	computed: {
-    ...mapGetters(['currentUser'])},
+		...mapGetters(['currentUser'])
+	},
+	created() {
+		this.updateDateTime()
+	},
 	methods: {
 		logout() {
 			localStorage.removeItem('token');
 			this.$router.push({ name: 'login' });
+		},
+		updateDateTime() {
+			this.currentDateTime = new Date().toLocaleString()
+			setTimeout(this.updateDateTime, 1000)
 		}
 	}
 }
+
 </script>
 <style lang="scss" scoped>
 aside {
@@ -79,7 +90,7 @@ aside {
 	flex-direction: column;
 	background-color: var(--dark);
 	color: var(--light);
-	width: calc(5rem + 32px);
+	width: calc(10rem + 32px);
 	overflow: hidden;
 	min-height: 100vh;
 	padding: 1rem;
@@ -91,7 +102,7 @@ aside {
 	}
 
 	.logo {
-		margin-bottom: 1rem;
+		margin-bottom: 4rem;
 
 		img {
 			width: auto;
@@ -219,7 +230,7 @@ aside {
 		}
 	}
 
-	@media (max-width: 1024px) {
+	@media (max-width: 1300) {
 		position: relative;
 		z-index: 99;
 	}

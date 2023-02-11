@@ -4,7 +4,7 @@ import Login from "../views/login.vue";
 import Transaction from '../views/Transaction.vue'
 import Model from '../views/Model.vue'
 import Register from '../views/Register.vue'
-import About from '@/views/AboutView.vue'
+import About from '../views/AboutView.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -56,7 +56,7 @@ const router = createRouter({
     {
       path: '/:catchAll(.*)*',
       name: "PageNotFound",
-      component: () => import("@/views/NotFound.vue"),
+      component: () => import("../views/NotFound.vue"),
       meta: {
         hideNavbar: true,
       },
@@ -70,14 +70,18 @@ router.beforeEach((to, from, next) => {
       next({
         path: "/login",
         query: { redirect: to.fullPath },
-      });
-    } else {
+      }
+      );
+      console.log(123123)} else {
       next();
+      console.log(222222)
     }
   } else if(to.path === '/') {
     next('/home');
+    console.log(111111)
   } else {
-    next(); // make sure to always call next()!
+    next();
+    console.log(44444) // make sure to always call next()!
   }
 });
 
