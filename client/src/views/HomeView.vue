@@ -13,76 +13,51 @@ import piechart from '../components/piechart.vue'
         <q-page-container>
             <q-page>
                 <div class="q-pa-md ">
-                    <div class="q-pa-md q-mb-xl bg-grey-10 rounded ">
+                    <div class="rounded">
                         <h2 class="flex flex-center text-white">Welcome {{ currentUser }} 👨🏻‍💻</h2>
                     </div>
                     <div>
                         <box />
                     </div>
 
-                    <q-page-container>
-
-                        <div class="row justify-content-between">
-                            <piechart class="col-xs-12 col-sm-6 col-md-3" />
-                            <chart class="col-xs-12 col-sm-6 col-md-7" />
-                        </div>
-                    </q-page-container>
 
 
+                    <!-- 
+                            <q-row>
+                                <q-col >
+                                    <q-responsive :ratio="1">
+                                <piechart  />
+                            </q-responsive>
+                                </q-col>
+                                <q-col>
+                                    <q-responsive :ratio="1">
+                                        <chart/>
+                            </q-responsive>
+                                </q-col>
 
 
-                    <!-- <div class="row-inline">
-                            <chart/>
-                            <piechart />
-                        </div>
-                        <chart/> -->
-
-                    <!-- <div class="container">
-        <div class="row d-flex justify-content-center align-items-center h-100">
-            <div class="col-lg-12 col-xl-11">
-                <div class="card text-black" style="border-radius: 25px;">
-                    <div class="card-body p-md-5">
-                        <div class="row justify-content-center">
-                            <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
-
-                                <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">TEST COLLECTIONS DATA</p>
-                                <form @submit.prevent="register">
-                                    <div class="form-group">
-                                        <label for="username">Username</label>
-                                        <input type="text" id="username" v-model="username" class="form-control" />
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="name">Name</label>
-                                        <input type="text" id="name" v-model="name" class="form-control" />
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="email">Email</label>
-                                        <input type="email" id="email" v-model="email" class="form-control" />
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="password">Password</label>
-                                        <input type="password" id="password" v-model="password" class="form-control" />
-                                    </div>
                                 
-                                    <button class="btn btn-primary" type="submit">POST</button>
-                                </form>
-
-                            </div>
-                            <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-right">
-
-                                <img src="https://i.pinimg.com/originals/d7/c2/50/d7c250296c3c3b44c9aeb01623dd1023.gif"
-                                    class="img-fluid" alt="Sample image">
-                            </div>
+                            </q-row> -->
+                    <div class="q-pa-md">
+                        <div class="row items-start q-gutter-md">
+                            <q-responsive :ratio="1" class="col" style="width: 500px; max-width: 100%;">
+                                <q-card class="column flex flex-center q-pa-md" >
+                                     
+                                    <piechart/>
+        
+                                </q-card>
+                            </q-responsive>
+                            
+                            <q-responsive :ratio="1" class="col" style="width: 500px; max-width: 100%;">
+                                <q-card class="column flex flex-center q-pa-md">
+                                    <chart />
+                                    
+                                </q-card> 
+                            </q-responsive>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-     -->
 
                 </div>
-                <!-- </style> -->
             </q-page>
         </q-page-container>
     </q-layout>
@@ -109,5 +84,10 @@ export default {
 }
 </script>
 <style>
-
+.rounded {
+    background-color: rgb(156, 169, 181);
+    padding: 20px;
+    margin-bottom: 10px;
+    border-radius: 10px 10px 10px 10px;
+}
 </style>

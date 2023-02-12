@@ -1,11 +1,9 @@
 <template>
-    <q-card class="q-ma-xl">
-        <q-card-section>
+
 
             <Pie :data="pieData"></Pie>
 
-        </q-card-section>
-    </q-card>
+
 </template>
 
 <script lang="ts">

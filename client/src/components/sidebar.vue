@@ -90,7 +90,7 @@ aside {
 	flex-direction: column;
 	background-color: var(--dark);
 	color: var(--light);
-	width: calc(10rem + 32px);
+	width: calc(5rem + 32px);
 	overflow: hidden;
 	min-height: 100vh;
 	padding: 1rem;

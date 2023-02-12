@@ -12,7 +12,7 @@
   <div class="col">
     <span><h4>Automatic retraining</h4></span>
     <span><p>System that will allow you to retrain the model every 6 hours.</p></span>
-
+    <span><h6>Model Current Running {{current}} </h6></span>
     <div class="col">
       <!-- <div class="form-check form-switch">
         
@@ -303,12 +303,13 @@ export default {
         }
       ],
       selectedbaseon: ref(null),
-      BaseOn:'',
+      BaseOn: '',
       statusMessage: '',
       models: [],
       Support: 50,
       Confidence: 50,
-      sortBy:"",
+      sortBy: "",
+      current: "",
       latent: 15,
       files: [],
       selectedFile: ref(""),
@@ -336,10 +337,10 @@ export default {
     this.fetchModels();
   },
   methods: {
-    reset () {
-    this.selectedFile = ''
-  },
-    update_values(value){
+    reset() {
+      this.selectedFile = ''
+    },
+    update_values(value) {
       this.selectedFile = value
     },
     submit1() {
@@ -360,30 +361,30 @@ export default {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*'
         },
-        sup:this.Support,
-        con:this.Confidence,
-        metric:this.sortBy,
-        base_on:this.BaseOn
+        sup: this.Support,
+        con: this.Confidence,
+        metric: this.sortBy,
+        base_on: this.BaseOn
       })
         .then(response => {
           this.check = response.data['msg']
           if (response.status === 201) {
-          this.$q.loading.hide()
-          this.$q.notify({
-            color: "positive",
-            message: "Training Success",
-            position: "top-right"
-          })
-        }
+            this.$q.loading.hide()
+            this.$q.notify({
+              color: "positive",
+              message: "Training Success",
+              position: "top-right"
+            })
+          }
         }).catch(error => {
           this.$q.loading.hide()
           this.$q.notify({
-          color: "negative",
-          message: "Training Failed",
-          position: "top-right"
+            color: "negative",
+            message: "Training Failed",
+            position: "top-right"
           })
           console.log(error)
-})
+        })
     },
     submit2() {
       console.log(this.latent)
@@ -397,7 +398,7 @@ export default {
         .then(response => {
           this.check = response.data['msg']
         })
-      $(".toast").toast('show');
+        location.reload();
     },
     async fetchModels() {
       try {
@@ -419,6 +420,7 @@ export default {
             message: "Model switched successfully",
             position: "top-right"
           });
+          location.reload();
         }
       } catch (error) {
         console.log(error);
@@ -467,7 +469,13 @@ export default {
     } catch (error) {
       this.checked = false
     }
-
+    try {
+      const response1 = await axios.get('get_current')
+      if (response1.status === 200) {
+        this.current = response1.data['model_cf']
+      }
+    } catch (error) {
+    }
   },
 
 

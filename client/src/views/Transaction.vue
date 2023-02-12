@@ -1,31 +1,18 @@
 <template>
-  <div class="container-lg my-2">
-    <q-card bordered :style="{ height: '400px' }" horizontal>
-    <q-card-section>
-      <q-row>
-        <q-col sm="4" class="text-center">
-          <p class="title">Likes</p>
-          <p class="value">{{ likes }}</p>
-        </q-col>
-        <q-col sm="4" class="text-center">
-          <p class="title">Views</p>
-          <p class="value">{{ views }}</p>
-        </q-col>
-        <q-col sm="4" class="text-center">
-          <p class="title">Transactions</p>
-          <p class="value">{{ transactions }}</p>
-        </q-col>
-      </q-row>
-    </q-card-section>
-    <q-card-section>
-      <q-table
-        :data="transactionsList"
-        :columns="tableColumns"
-        row-key="transactionId"
-      />
-    </q-card-section>
-  </q-card>
-</div>
+<q-layout>
+  <q-header class="bg-dark">
+          <q-toolbar>
+            <q-toolbar-title>Transaction</q-toolbar-title>
+          </q-toolbar>
+        </q-header>
+  <q-toolbar-title>Apriori Model</q-toolbar-title>
+  <q-page-container>
+    <q-page>
+   
+
+</q-page>
+</q-page-container>
+</q-layout>
 </template>
 
 <script>

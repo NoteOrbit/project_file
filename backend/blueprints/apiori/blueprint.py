@@ -20,17 +20,17 @@ recommend_rule = Blueprint('recommend_rule', __name__)
 setup_db = client['system']
 setup_model = setup_db['model_log']
 model_cf = setup_model.find({"model_name": "CF"}, {"path": 1, '_id': 0}).sort([("_id", -1)]).limit(1)
+
 setup_model_cf = [x for x in model_cf]
 sys.path.append("...")
 # current_app.config['setup_cf'] = setup_model_cf[0]['path']
 # print(current_app.config['setup_cf'])
-global current_model
+current_model = None
 global path_current
 path_current = setup_model_cf[0]['path']
-
+print(path_current)
 with open(setup_model_cf[0]['path'], 'rb') as f:
     current_model = pickle.load(f)
-
 
 class CFRecommender2:
     
@@ -43,7 +43,7 @@ class CFRecommender2:
     def get_model_name(self):
         return self.MODEL_NAME
         
-    def recommend_projects(self, donor_id, projects_to_ignore=[], topn=20):
+    def recommend_projects(self, donor_id, projects_to_ignore=[], topn=10):
         # Get and sort the donor's predictions
         sorted_donor_predictions = self.cf_predictions_df[donor_id].sort_values(ascending=False) \
                                     .reset_index().rename(columns={donor_id: 'recStrength'})
@@ -55,7 +55,7 @@ class CFRecommender2:
 
         return recommendations_df
     
-@recommend_rule.route('/getmodel')
+@recommend_rule.route('/getmodel',methods=['GET'])
 def get_models():
     db = client['system']
     model_collection = db['model_log']
@@ -63,8 +63,16 @@ def get_models():
     models = list(models)
     for model in models:
         model["_id"] = str(model["_id"])
-    return jsonify(models)
+    return jsonify(models),200
 
+
+@recommend_rule.route('/get_current',methods=['GET'])
+def current_model1():
+    js = {
+        "model_cf":current_app.config['path']
+    }
+
+    return jsonify(js)
 
 
 @recommend_rule.route('/switch_model', methods=['POST'])
@@ -77,9 +85,12 @@ def switch_model():
         model = pickle.load(f)
     
     # update the global variable that stores the current model
+
+    global current_model
     current_model = model
     path_current = selected_model_path
     current_app.config['path'] = path_current
+    print(current_app.config['path'])
 
     return jsonify({'message': 'Model successfully switched'},200)
 
@@ -290,14 +301,19 @@ def recommend():
     db = client['Infomations']
     users_collection = db['Transaction_user']
     user_check = users_collection.find_one({'User': user_name})
+
     if user_check:
         preds_df_1 = current_model ## set up model
+        print(preds_df_1)
         data = users_collection.find({}, {'Store':1, '_id':0,'User':1,'Rating':1})
         df11 =  pd.DataFrame(list(data))
+
         user_df = df11.pivot_table(index="User",columns="Store",values='Rating').fillna(0)
+
         hh = CFRecommender2(preds_df_1,user_df)
         sss = user_df.loc[user_name]
-        indexes = sss[sss > 0].index    
+        indexes = sss[sss > 0].index
+
         data2 = hh.recommend_projects(user_name,indexes)
         json2 = data2['Store']
         lista = [x for x in json2]

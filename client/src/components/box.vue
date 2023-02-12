@@ -1,9 +1,9 @@
 <template>
   
 
-  <q-row class="row justify-around  q-gutter-sm">
+  <q-row class="row justify  q-gutter-sm flex flex-center">
     
-    <q-card class="my-card " v-for="item in data.data" :key="item._id"  style="width: 500px">
+    <q-card class="my-card bg-indigo-3 text-white" v-for="item in data.data" :key="item._id"  style="width: 500px">
 
         <q-card-section>
           <h5>{{ item._id }}</h5>

@@ -1,11 +1,9 @@
 <template>
-  <q-card class="q-ma-xl">
-    <q-card-section>
-      <div>
+
+
         <Line v-if="loaded" :data="chartData" :options="chartOptions" />
-      </div>
-    </q-card-section>
-  </q-card>
+
+
 </template>
 
 <script>
