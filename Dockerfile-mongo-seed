@@ -1,0 +1,7 @@
+FROM mongo
+
+WORKDIR /usr/src/app
+
+COPY ./backup /backup
+
+CMD mongorestore --host mongodb:27018 --username root --password example --authenticationDatabase admin /backup

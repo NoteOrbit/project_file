@@ -20,6 +20,14 @@ services:
     networks:
       - mynetwork
     command: mongod --port 27018
+  mongo-seed:
+    build:
+      context: .
+      dockerfile: ./Dockerfile-mongo-seed
+    depends_on:
+      - mongodb
+    networks:
+      - mynetwork
 networks:
   mynetwork:
     driver: bridge
