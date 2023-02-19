@@ -225,6 +225,7 @@ def savemodelsa():
         old_data = pd.read_csv("data/Form.csv")
         old_data = old_data.iloc[0:,[1,2,3]] ## remove coulume not use
         old_data['Store'] = old_data['Store'].apply(lambda x: x.split(","))
+        
         print(old_data)
         old_data = old_data.append(df1,ignore_index=True) ## append data to previouse data
         

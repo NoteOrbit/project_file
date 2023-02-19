@@ -100,27 +100,25 @@ def take2():
     return jsonify({'msg': 'log save'}), 201
 
 
-@general.route('/overview', methods=['GET',"POST","UPDATE"]) ## event
+@general.route('/count_overview', methods=['GET']) ## event
 def overview():
-    db = client['Infomations']
-    _json = request.json
-    uid = _json['uid']
-    event = _json['event']
-    Content = _json['Content']
-    users_collection = db['Transactions']
-    hash_object = hashlib.sha256(current_app.config['path'].encode())
-    hex_dig = hash_object.hexdigest()
-    js = {
-                
-                "uid":uid,
-                "event":event,
-                "Content":Content,
-                "Date":datetime.datetime.now(),
-                "Path":current_app.config['path'],
-                "recomend_id":hex_dig
-            }
+    db = client['system']
+    values = db.recommendations.count_documents({})
+    db2 = client['Infomations']
+    pipeline = [
+        {'$group' : { '_id' : '$event', 'count' : {'$sum' : 1}}}
 
-    user = users_collection.insert_one(js)
-    return jsonify({'msg': 'log save'}), 201
+
+    ]
+    values_event = list(db2.Transactions.aggregate(pipeline))
+    values_review = db2.Transaction.count_documents({})
+    js = {
+            "values":values,
+            'values_event':values_event,
+            'values_review':values_review,
+            
+            }
+    
+    return jsonify(js), 201
 
 
