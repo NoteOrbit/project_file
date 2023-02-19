@@ -3,6 +3,7 @@ import box from '../components/box.vue'
 import table2 from '../components/table2.vue'
 import chart from '../components/bar.vue'
 import piechart from '../components/piechart.vue'
+import box_count from '../components/box_count.vue'
 </script>
 
 <template>
@@ -56,7 +57,9 @@ import piechart from '../components/piechart.vue'
                             </q-responsive>
                         </div>
                     </div>
-
+                    <div>
+                        <box_count/>
+                    </div>
                 </div>
             </q-page>
         </q-page-container>

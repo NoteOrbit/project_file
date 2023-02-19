@@ -47,8 +47,8 @@
               <q-slider
                 v-model="Support"
                 label-always
-                :min="0"
-                :max="100"
+                :min="1"
+                :max="15"
               />
               <span>Support</span>
               <q-slider
@@ -57,7 +57,7 @@
                 :min="0"
                 :max="100"
               />
-              <span>Confidence</span>
+              <span>Threshold</span>
             </q-card-section>
             <q-card-section>
               <q-item-label header>Sort By</q-item-label>
@@ -306,7 +306,7 @@ export default {
       BaseOn: '',
       statusMessage: '',
       models: [],
-      Support: 50,
+      Support: 5,
       Confidence: 50,
       sortBy: "",
       current: "",
