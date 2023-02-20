@@ -42,7 +42,7 @@
 
     <div v-if="selectedFile === '1' && checked != true">
           <q-card class="q-pa-md" style="margin: 0 auto; width: 90%;" >
-            <span>asdfasdfasdfasdfasd</span>
+            <span>Test</span>
             <q-card-section>
               <q-slider
                 v-model="Support"

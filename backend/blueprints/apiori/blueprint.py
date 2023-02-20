@@ -14,7 +14,15 @@ from config import client
 from mlxtend.preprocessing import TransactionEncoder
 from mlxtend.frequent_patterns import apriori
 from mlxtend.frequent_patterns import association_rules
-import pprint
+from pprint import pprint ## show pprint format json
+
+
+"""
+
+SETUP FLASK BLUEPRINTS
+
+"""
+
 recommend_rule = Blueprint('recommend_rule', __name__)
 # client = MongoClient('mongodb://0.tcp.ap.ngrok.io:17474', 27017)
 setup_db = client['system']
@@ -31,7 +39,11 @@ path_current = setup_model_cf[0]['path']
 print(path_current)
 with open(setup_model_cf[0]['path'], 'rb') as f:
     current_model = pickle.load(f)
+'''
 
+CLASS SHOW SVD RECOMMENDATIONS
+
+'''
 class CFRecommender2:
     
     MODEL_NAME = 'Collaborative Filtering'
@@ -55,6 +67,13 @@ class CFRecommender2:
 
         return recommendations_df
     
+
+"""
+
+Router GETMODEL
+
+"""
+
 @recommend_rule.route('/getmodel',methods=['GET'])
 def get_models():
     db = client['system']
@@ -73,6 +92,15 @@ def current_model1():
     }
 
     return jsonify(js)
+
+
+
+"""
+
+SWITCH MODEL
+
+"""
+
 
 
 @recommend_rule.route('/switch_model', methods=['POST'])
@@ -94,6 +122,13 @@ def switch_model():
 
     return jsonify({'message': 'Model successfully switched'},200)
 
+"""
+
+SAVE MODEL CF
+
+"""
+
+
 
 @recommend_rule.route('/save_cf', methods=['POST'])
 def save_model():
@@ -108,7 +143,8 @@ def save_model():
     U, sigma, Vt = svds(user_df.values, k = values)
     sigma = np.diag(sigma)
     predicted_ratings = np.dot(np.dot(U, sigma), Vt)
-    preds_df = pd.DataFrame(predicted_ratings, 
+    all_user_predicted_ratings_norm = (predicted_ratings - predicted_ratings.min()) / (predicted_ratings.max() - predicted_ratings.min())
+    preds_df = pd.DataFrame(all_user_predicted_ratings_norm, 
                            columns = user_df.columns, 
                            index=user_ids).transpose()
     now = datetime.now()
@@ -165,6 +201,13 @@ def save_model1():
     return "Hlleow"
 
 scheduler.add_job(id='save_model1', func=save_model1, trigger='interval', hours=6)
+
+"""
+
+SAVE MODEL ASSOCATIONS RULES
+
+"""
+
 
 @recommend_rule.route('/save_as', methods=['POST'])
 def savemodelsa():
@@ -275,6 +318,13 @@ def savemodelsa():
         return jsonify({"msg":"no key"}),400
 
 
+"""
+
+SETUP CORN JOB
+
+"""
+
+
 @recommend_rule.route('/pause_job', methods=['GET'])
 def pause_job():
     scheduler.pause_job('save_model1')
@@ -293,6 +343,23 @@ def check_job():
         return jsonify({"msg":"Job is running"}),200
     else:
         return jsonify({"msg":"Job is paused"}),203
+
+
+"""
+
+SETUP CORN JOB
+
+"""
+
+
+
+
+
+"""
+
+GET RECOMMENDATIONS
+
+"""
 
 
 
@@ -318,7 +385,7 @@ def recommend():
         data2 = hh.recommend_projects(user_name,indexes)
         json2 = data2['Store']
         lista = [x for x in json2]
-        print(lista)
+        
         pipeline = [
             {"$match": {"store": {"$in": lista}}},
             {"$addFields": { "index": { "$indexOfArray": [ lista, "$store" ] } } },
@@ -479,6 +546,11 @@ def recommend():
 
     # return jsonify({'recommendations': recommendations})
 
+"""
+
+FILLTER TYPE
+
+"""
 
 @recommend_rule.route('/type',methods=['GET'])
 def filterbytype():
@@ -493,6 +565,14 @@ def filterbytype():
         return jsonify(re) 
     else:
         return jsonify({"error": "no method for post"}), 400
+
+
+"""
+
+POPULATIONS BASE MODEL
+
+"""
+
 
 
 @recommend_rule.route('/recommend_populations', methods=['GET'])
