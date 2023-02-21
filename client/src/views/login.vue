@@ -1,10 +1,11 @@
 <template lang="">
-  <q-layout view="hHh lpR fFf">
+  <q-layout view="hHh lpR fFf ">
     <q-page-container>
 
-      <q-page class="flex flex-center">
-        <q-card class="text-left">
-          <q-card-section>
+      <q-page class="flex flex-center ">
+        
+        <q-card class="text-left  ">
+          <q-card-section >
             <h1 class="Login">Login system</h1>
             <q-form @submit.prevent="login" class="q-gutter-y-md" >
             <q-input v-model="email" type="username" label="Username" class="mb-4" :rules="[ val => val && val.length > 0 || 'Please type something']"/>
@@ -13,6 +14,7 @@
             </q-form>
           </q-card-section>
         </q-card>
+      
       </q-page>
 
     </q-page-container>
@@ -74,5 +76,12 @@ export default {
 
 </script>
 <style>
+
+
+.rounded {
+    
+    border-radius: 10px 10px 10px 10px;
+}
+
 
 </style>
