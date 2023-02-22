@@ -37,14 +37,17 @@ services:
   backend:
     build:
       context: ./backend
+    container_name: backend
     ports:
       - "5001:5001"
     depends_on:
       - mongodb
     networks:
       - mynetwork
+      
   mongodb:
     image: mongo
+    container_name: mongodb
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
@@ -65,10 +68,12 @@ services:
   client:
     build:
       context: ./client
+    container_name: my-client
     ports:
       - "8080:8080"
     networks:
       - mynetwork
+
 networks:
   mynetwork:
     driver: bridge
