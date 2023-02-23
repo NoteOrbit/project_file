@@ -214,7 +214,7 @@
     }"
     :filter="filter"
     row-key="_id"
-    hide-header
+    
 
   >
   <template v-slot:top-right>
