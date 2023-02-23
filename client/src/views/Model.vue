@@ -198,6 +198,7 @@
     <span><h4>Selected Model Version</h4></span>
     </div>
   </div>
+  
   <div class="a">
   <q-table
     title="Log"
@@ -211,9 +212,20 @@
       nextIcon: 'mdi-chevron-right',
       noDataIcon: 'mdi-emoticon-sad'
     }"
+    :filter="filter"
     row-key="_id"
+    hide-header
+
   >
+  <template v-slot:top-right>
+        <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
+          <template v-slot:append>
+            <q-icon name="search" />
+          </template>
+        </q-input>
+      </template>
     <template v-slot:body="{ row }">
+      
       <q-tr>
         <q-td>{{ row._id }}</q-td>
         <q-td>{{ row.model_name }}</q-td>
@@ -221,12 +233,15 @@
         <q-td>{{ row.path }}</q-td>
         <q-td>{{ row.measures ? row.measures.mse : '-'}}</q-td>
         <q-td>{{ row.setting ? row.setting.K : '-'}}</q-td>
+        
         <q-td>
           <q-btn color="primary" @click="switchModel(row)">Use This Model</q-btn>
         </q-td>
       </q-tr>
     </template>
+    
   </q-table>
+  
 </div>
 </div>
 
@@ -290,6 +305,11 @@ import ToastComponent from '../components/noti.vue'
 import { ref } from 'vue'
 
 export default {
+  setup(){
+    return {
+      filter: ref(''),
+    }
+  },
   data() {
     return {
       selectOptions: [
