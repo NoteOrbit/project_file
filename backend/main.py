@@ -18,7 +18,7 @@ def create_app():
     #     'MONGO_DBNAME'
     # ] = 'loasthost'
 
-    app.config['CORS_HEADERS'] = 'Content-Type'
+    # app.config['CORS_HEADERS'] = 'Content-Type'
     # app.config.from_pyfile('config.py', silent=True)
     setup_db = client['system']
     setup_model = setup_db['model_log']
@@ -35,10 +35,10 @@ def create_app():
     def after_request(response):
         response.headers.add('Access-Control-Allow-Origin', '*')
         response.headers.add('Access-Control-Allow-Headers',
-                             'Content-Type,Authorization')
+                             'Content-Type,Authorization,X-Requested-With')
         response.headers.add('Access-Control-Allow-Methods',
                              'GET,PUT,POST,DELETE,OPTIONS')
-        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        # response.headers.add('Access-Control-Allow-Credentials', 'true')
         return response
 
     # cors = CORS(app, resources={r"/*":{

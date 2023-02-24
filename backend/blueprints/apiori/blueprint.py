@@ -33,10 +33,20 @@ setup_model_cf = [x for x in model_cf]
 sys.path.append("...")
 # current_app.config['setup_cf'] = setup_model_cf[0]['path']
 # print(current_app.config['setup_cf'])
-current_model = None
+"""
+init current model as , svds
+
+
+"""
+
+
+
+current_model = None ## svd
+currnet_model_as = None ## as
+global path_current_as
 global path_current
+path_current_as = ''
 path_current = setup_model_cf[0]['path']
-print(path_current)
 with open(setup_model_cf[0]['path'], 'rb') as f:
     current_model = pickle.load(f)
 '''
@@ -88,7 +98,8 @@ def get_models():
 @recommend_rule.route('/get_current',methods=['GET'])
 def current_model1():
     js = {
-        "model_cf":current_app.config['path']
+        "model_cf":current_app.config['path'],
+        "model_as":path_current_as
     }
 
     return jsonify(js)
@@ -100,6 +111,25 @@ def current_model1():
 SWITCH MODEL
 
 """
+
+
+@recommend_rule.route('/switch_model_as', methods=['POST'])
+def switch_model_as():
+    # get the path of the selected model from the client's request
+    selected_model_path = request.json['path']
+    
+    # use the selected model path to load the appropriate model
+    with open(selected_model_path, 'rb') as f:
+        model = pickle.load(f)
+    
+    # update the global variable that stores the current model
+
+    global currnet_model_as
+    currnet_model_as = model
+    global path_current_as
+    path_current_as = selected_model_path
+
+    return jsonify({'message': 'Model successfully switched'},200)
 
 
 
@@ -433,8 +463,12 @@ def recommend():
         mapage = lambda x: '10-20' if x <= 20 else '21-40' if x <= 40 else '41-60' if x <= 60 else '60+'
         user['age'] = mapage(user['age'])
         user['gender'] = user['gender'].lower()
-        with open('model/apiori/association2023_02_11_19_44_01.pkl', 'rb') as f:
-            age_rule = pickle.load(f)
+        # with open('model/apiori/association2023_02_11_19_44_01.pkl', 'rb') as f:
+        #     age_rule = pickle.load(f)
+
+
+
+        age_rule = currnet_model_as ## setup model first
 
         rules = age_rule[(user['age'], user['gender'].lower())].sort_values(by='confidence', ascending=False)
 
@@ -449,7 +483,7 @@ def recommend():
             da = set([ss.strip() for ss in a])
             re.update(da)
         lista = list(re)
-        print(lista)
+        
         pipeline = [
             {"$match": {"store": {"$in": lista}}},
             {"$addFields": { "index": { "$indexOfArray": [ lista, "$store" ] } } },

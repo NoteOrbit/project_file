@@ -12,13 +12,16 @@
   <div class="col">
     <span><h4>Automatic retraining</h4></span>
     <span><p>System that will allow you to retrain the model every 6 hours.</p></span>
-    <span><h6>Model Current Running {{current}} </h6></span>
+    <span><h6>Model_svd Current Running {{current}} </h6></span>
+    <span><h6>Model_as  Current Running {{current_as}} </h6></span>
     <div class="col">
+
       <!-- <div class="form-check form-switch">
         
         <input class="form-check-input " type="checkbox" role="switch" v-model="checked" @change="checkAPIStatus()" id="flexSwitchCheckDefault" >
         <label class="form-check-label" for="flexSwitchCheckDefault">Status</label>
       </div> -->
+
       <q-toggle checked-icon="check" size="L" v-model="checked" color="green" :label="`Automatic is }`" @update:model-value="checkAPIStatus"/>
     </div>
   </div>
@@ -126,19 +129,12 @@
           </q-card>
     </div>
 
-  
+
   <!-- <h4 class="my-3">Manual retraining</h4>
         <select v-model="selectedFile" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
           <option value="1">Apriori</option>
           <option value="2">CF</option>
         </select> -->
-
-        
-
-
-
-
-
 
 
       <!-- <div v-if="selectedFile === '1'">
@@ -225,7 +221,7 @@
         </q-input>
       </template>
     <template v-slot:body="{ row }">
-      
+
       <q-tr>
         <q-td>{{ row._id }}</q-td>
         <q-td>{{ row.model_name }}</q-td>
@@ -233,13 +229,14 @@
         <q-td>{{ row.path }}</q-td>
         <q-td>{{ row.measures ? row.measures.mse : '-'}}</q-td>
         <q-td>{{ row.setting ? row.setting.K : '-'}}</q-td>
-        
         <q-td>
-          <q-btn color="primary" @click="switchModel(row)">Use This Model</q-btn>
+          <!-- <q-btn color="primary" @click="switchModel(row)">Use This Model</q-btn> -->
+          <q-btn color="primary" @click="row.model_name === 'CF' ? switchModel(row) : switchModel_AS(row)">
+            Use model
+      </q-btn>
         </q-td>
       </q-tr>
     </template>
-    
   </q-table>
   
 </div>
@@ -290,18 +287,15 @@
 </div> -->
 
 
-  
-
 </template>
 <script>
 
 // $(document).ready(function () {
 //   $(".toast").toast('show');
 // });
-import { useQuasar, QSpinnerFacebook } from 'quasar'
-import table from "../components/table2.vue"
+
+import { useQuasar, QSpinnerFacebook } from 'quasar';
 import axios from '../axios.js';
-import ToastComponent from '../components/noti.vue'
 import { ref } from 'vue'
 
 export default {
@@ -330,6 +324,7 @@ export default {
       Confidence: 50,
       sortBy: "",
       current: "",
+      current_as: "",
       latent: 15,
       files: [],
       selectedFile: ref(""),
@@ -451,6 +446,27 @@ export default {
         });
       }
     },
+    async switchModel_AS(model) {
+      try {
+        const response = await axios.post("/switch_model_as", { path: model.path });
+
+        if (response.status === 200) {
+          this.$q.notify({
+            color: "positive",
+            message: "Model switched successfully",
+            position: "top-right"
+          });
+          location.reload();
+        }
+      } catch (error) {
+        console.log(error);
+        this.$q.notify({
+          color: "negative",
+          message: "An error occurred while switching the model",
+          position: "top-right"
+        });
+      }
+    },
     async checkAPIStatus() {
       try {
         let response
@@ -492,7 +508,9 @@ export default {
     try {
       const response1 = await axios.get('get_current')
       if (response1.status === 200) {
+        console.log(response1)
         this.current = response1.data['model_cf']
+        this.current_as = response1.data['model_as']
       }
     } catch (error) {
     }
