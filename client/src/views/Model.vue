@@ -7,8 +7,8 @@
   <div class="col">
     <span><h4>Automatic retraining</h4></span>
     <span><p>System that will allow you to retrain the model every 6 hours.</p></span>
-    <span><h6>Model_svd Current Running {{current}} </h6></span>
-    <span><h6>Model_as  Current Running {{current_as}} </h6></span>
+    <span><h6>Model SVD Current Running <strong> {{current}}</strong> </h6></span>
+    <span><h6>Model ASSOCIATIONS Current Running <strong> {{current_as}}</strong></h6></span>
     <div class="col">
 
       <!-- <div class="form-check form-switch">
