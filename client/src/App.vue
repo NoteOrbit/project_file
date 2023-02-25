@@ -2,12 +2,35 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import sidebar from './components/sidebar.vue'
-
+import sidebar_v2 from './components/sidebar_v2.vue';
 </script>
 <template>
 <div class="app">
-    <sidebar v-if="!$route.meta.hideNavbar"/>
-    <RouterView/>
+    <q-layout>
+        <sidebar_v2 v-if="!$route.meta.hideNavbar"/>
+        <q-page-container>
+            <q-page>
+                <RouterView/>        
+            </q-page>
+        </q-page-container>
+        
+    </q-layout>
+    <!-- <q-layout>
+        <sidebar_v2/>
+        <q-page-container>
+            <q-page>
+                <sidebar v-if="!$route.meta.hideNavbar"/>
+                <RouterView/>    
+            </q-page>
+            <RouterView/>
+        </q-page-container>
+    </q-layout> -->
+    <!-- <sidebar v-if="!$route.meta.hideNavbar"/>
+    <RouterView/> -->
+
+
+
+    
 </div>
 
 </template>
@@ -16,7 +39,7 @@ import sidebar from './components/sidebar.vue'
 
 
 </script>
-<style lang="scss">
+<!-- <style lang="scss">
 :root {
     --primary: #cc409b;
     --primary-alt: #223bc5;
@@ -52,4 +75,4 @@ button {
         }
     }
 }
-</style>
+</style> -->

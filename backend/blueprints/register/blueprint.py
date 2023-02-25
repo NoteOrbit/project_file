@@ -1,10 +1,7 @@
 from flask import Blueprint, render_template, request, jsonify
-import requests
-import json
 import hashlib
 from pymongo import MongoClient 
-
-client = MongoClient('localhost', 27017)
+from config import client
 Reg = Blueprint('Register', __name__)
 
 
@@ -27,5 +24,9 @@ def Reg1():
             return jsonify({'msg': 'User created successfully'}), 201
         else:
             return jsonify({'msg': 'Username already exists'}),401
+       
+
+
+       
 
 

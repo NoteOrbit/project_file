@@ -1,6 +1,7 @@
 import axios from './axios'
 import createPersistedState from 'vuex-persistedstate'
 import { createStore } from "vuex";
+
 const state = {
     currentUser: "asdasd"
 }

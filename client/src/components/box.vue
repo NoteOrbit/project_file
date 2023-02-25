@@ -12,6 +12,7 @@
 
     </q-card>
   </q-row>
+  
 </template>
 <script>
 import axios from '../axios.js';

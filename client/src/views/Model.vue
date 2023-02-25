@@ -1,11 +1,6 @@
 <template lang="">
 <q-layout>
-  <q-header class="bg-dark">
-          <q-toolbar>
-            <q-toolbar-title>Management model</q-toolbar-title>
-          </q-toolbar>
-        </q-header>
-  <q-toolbar-title>Apriori Model</q-toolbar-title>
+
   <q-page-container>
     <q-page>
     <div class="q-pa-md">

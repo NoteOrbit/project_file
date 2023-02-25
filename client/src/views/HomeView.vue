@@ -9,10 +9,8 @@ import box_count from '../components/box_count.vue'
 <template>
     <!-- <navbar /> -->
 
-    <q-layout>
-
-        <q-page-container>
-            <q-page>
+    
+            
                 <div class="q-pa-md ">
                     <div class="rounded">
                         <h2 class="flex flex-center text-white">Welcome {{ currentUser }} 👨🏻‍💻</h2>
@@ -61,9 +59,8 @@ import box_count from '../components/box_count.vue'
                         <box_count/>
                     </div>
                 </div>
-            </q-page>
-        </q-page-container>
-    </q-layout>
+
+    
 </template>
 <script>
 import axios from '../axios.js';
