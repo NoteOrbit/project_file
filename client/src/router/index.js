@@ -5,6 +5,7 @@ import Transaction from '../views/Transaction.vue'
 import Model from '../views/Model.vue'
 import Register from '../views/Register.vue'
 import About from '../views/AboutView.vue'
+import User from '../views/User.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -49,6 +50,14 @@ const router = createRouter({
       path: "/Model",
       name: "Model",
       component: Model,
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
+      path: "/User",
+      name: "User",
+      component: User,
       meta: {
         requiresAuth: true,
       },

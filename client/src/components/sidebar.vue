@@ -31,7 +31,10 @@
 				<span class="material-icons">route</span>
 				<span class="text">Transaction</span>
 			</router-link>
-
+			<router-link to="/User" class="button">
+				<span class="material-icons">person</span>
+				<span class="text">User Management</span>
+			</router-link>
 
 		</div>
 

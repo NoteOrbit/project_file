@@ -228,7 +228,9 @@
         <q-td>{{ row.date }}</q-td>
         <q-td>{{ row.path }}</q-td>
         <q-td>{{ row.measures ? row.measures.mse : '-'}}</q-td>
-        <q-td>{{ row.setting ? row.setting.K : '-'}}</q-td>
+        <q-td>{{ row.setting ? row.setting : '-'}}</q-td>
+        
+        
         <q-td>
           <!-- <q-btn color="primary" @click="switchModel(row)">Use This Model</q-btn> -->
           <q-btn color="primary" @click="row.model_name === 'CF' ? switchModel(row) : switchModel_AS(row)">
