@@ -12,9 +12,7 @@ import box_count from '../components/box_count.vue'
     
             
                 <div class="q-pa-md ">
-                    <div class="rounded">
-                        <h2 class="flex flex-center text-white">Welcome {{ currentUser }} 👨🏻‍💻</h2>
-                    </div>
+
                     <div>
                         <box />
                     </div>
@@ -37,6 +35,7 @@ import box_count from '../components/box_count.vue'
 
                                 
                             </q-row> -->
+
                     <div class="q-pa-md">
                         <div class="row items-start q-gutter-md">
                             <q-responsive :ratio="1" class="col" style="width: 500px; max-width: 100%;">
