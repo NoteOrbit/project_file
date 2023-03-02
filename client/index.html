@@ -19,7 +19,7 @@
 
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet" type="text/css">
     <link href="https://cdn.jsdelivr.net/npm/quasar@2.11.5/dist/quasar.prod.css" rel="stylesheet" type="text/css">
-    
+    <link href="https://cdn.jsdelivr.net/npm/@quasar/quasar-ui-qcalendar@next/dist/QCalendarMonth.min.css" rel="stylesheet" type="text/css">
     <title>Recommendations system</title>
   </head>
   <body>
@@ -27,5 +27,12 @@
     <script type="module" src="/src/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/quasar@2.11.5/dist/quasar.umd.prod.js"></script>
+      <!-- AFTER the Quasar stylesheet tags: -->
+  <link href="https://cdn.jsdelivr.net/npm/@quasar/quasar-ui-qcalendar@next/dist/QCalendarMonth.min.css" rel="stylesheet" type="text/css">
+      <!-- at end of body, AFTER Quasar script(s): -->
+  <script src="https://cdn.jsdelivr.net/npm/@quasar/quasar-ui-qcalendar@next/dist/QCalendarMonth.umd.min.js"></script>
+
+  <!-- If you need Timestamp functions: -->
+  <script src="https://cdn.jsdelivr.net/npm/@quasar/quasar-ui-qcalendar@next/dist/Timestamp.umd.min.js"></script>
   </body>
 </html>

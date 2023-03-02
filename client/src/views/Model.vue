@@ -1,23 +1,30 @@
-<template lang="">
+
+<template>
 <q-layout>
 
   <q-page-container>
     <q-page>
     <div class="q-pa-md">
   <div class="col">
+    <div class="flex justify-center">
     <span><h4>Automatic retraining</h4></span>
-    <span><p>System that will allow you to retrain the model every 6 hours.</p></span>
+  </div>
+    
+    
+    <div>
+      
+      <calendar/>
+      <div class="flex flex-center">
+      <q-toggle checked-icon="check" size="L" v-model="checked" color="green" :label="`System that will allow you to retrain the model every 6 hours.`" @update:model-value="checkAPIStatus"/>
+    </div>
+    </div>
+    
     <span><h6>Model SVD Current Running <strong> {{current}}</strong> </h6></span>
     <span><h6>Model ASSOCIATIONS Current Running <strong> {{current_as}}</strong></h6></span>
     <div class="col">
 
-      <!-- <div class="form-check form-switch">
-        
-        <input class="form-check-input " type="checkbox" role="switch" v-model="checked" @change="checkAPIStatus()" id="flexSwitchCheckDefault" >
-        <label class="form-check-label" for="flexSwitchCheckDefault">Status</label>
-      </div> -->
 
-      <q-toggle checked-icon="check" size="L" v-model="checked" color="green" :label="`Automatic is }`" @update:model-value="checkAPIStatus"/>
+      
     </div>
   </div>
 </div>
@@ -203,18 +210,19 @@
       nextIcon: 'mdi-chevron-right',
       noDataIcon: 'mdi-emoticon-sad'
     }"
-    :filter="filter"
+    :filter="filter1"
     row-key="_id"
     
 
   >
   <template v-slot:top-right>
-        <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
+        <q-input borderless dense debounce="300" v-model="filter1" placeholder="Search">
           <template v-slot:append>
             <q-icon name="search" />
           </template>
         </q-input>
       </template>
+
     <template v-slot:body="{ row }">
 
       <q-tr>
@@ -294,11 +302,14 @@
 import { useQuasar, QSpinnerFacebook } from 'quasar';
 import axios from '../axios.js';
 import { ref } from 'vue'
-
+import calendar from '../components/calendar.vue';
 export default {
-  setup(){
+  components:{
+    calendar
+  },
+  setup() {
     return {
-      filter: ref(''),
+      filter1: ref(''),
     }
   },
   data() {
@@ -371,7 +382,6 @@ export default {
       axios.post('save_as', {
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
         },
         sup: this.Support,
         con: this.Confidence,
@@ -410,7 +420,7 @@ export default {
         .then(response => {
           this.check = response.data['msg']
         })
-        location.reload();
+      location.reload();
     },
     async fetchModels() {
       try {

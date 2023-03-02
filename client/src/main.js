@@ -9,8 +9,10 @@ import "./plugin/chart.js"
 // import 'bootstrap/dist/css/bootstrap.css'
 // import 'bootstrap-vue/dist/bootstrap-vue.css'
 import { createApp } from 'vue'
-import { Quasar,Notify,Loading } from 'quasar'
+import { Quasar,Notify,Loading} from 'quasar'
 
+import Plugin from '@quasar/quasar-ui-qcalendar/src/QCalendarDay.js'
+import '@quasar/quasar-ui-qcalendar/src/css/calendar-day.sass'
 // Import icon libraries
 import '@quasar/extras/material-icons/material-icons.css'
 
@@ -30,11 +32,14 @@ app.use(Quasar, {
     config:{
         Notify:{},
         loading:{}
-    } 
+    },
+
   })
 
 
 app.use(router);
 app.use(store);
+app.use(Plugin);
 
 app.mount('#app') 
+

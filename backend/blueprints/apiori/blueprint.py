@@ -7,7 +7,7 @@ import numpy as np
 import hashlib
 from scipy.sparse.linalg import svds
 from datetime import datetime
-from extensions import scheduler
+from extensions import scheduler,trigger
 import sys
 from bson import json_util
 from config import client
@@ -15,6 +15,8 @@ from mlxtend.preprocessing import TransactionEncoder
 from mlxtend.frequent_patterns import apriori
 from mlxtend.frequent_patterns import association_rules
 from pprint import pprint ## show pprint format json
+from datetime import datetime, timedelta
+
 
 
 """
@@ -24,18 +26,15 @@ SETUP FLASK BLUEPRINTS
 """
 
 recommend_rule = Blueprint('recommend_rule', __name__)
-# client = MongoClient('mongodb://0.tcp.ap.ngrok.io:17474', 27017)
 setup_db = client['system']
 setup_model = setup_db['model_log']
 model_cf = setup_model.find({"model_name": "CF"}, {"path": 1, '_id': 0}).sort([("_id", -1)]).limit(1)
-
 setup_model_cf = [x for x in model_cf]
 sys.path.append("...")
-# current_app.config['setup_cf'] = setup_model_cf[0]['path']
-# print(current_app.config['setup_cf'])
+
+
 """
 init current model as , svds
-
 
 """
 
@@ -104,7 +103,29 @@ def current_model1():
 
     return jsonify(js)
 
+@recommend_rule.route('/get_calendar',methods=['GET'])
+def get_calendar():
+    db = client['apscheduler']
+    collections = db['jobs']
+    job_list = list(collections.find())
 
+    events = []
+    for job in job_list:
+        job_id = job["_id"]
+        next_run_time = job["next_run_time"]
+        if next_run_time is not None:
+            next_run_time = datetime.fromtimestamp(next_run_time)
+            event = {
+                "id": job_id,
+                "title": job_id,
+                "date": next_run_time.strftime("%Y-%m-%d"),
+                "time": next_run_time.strftime("%H:%M:%S"),
+                "details": "Scheduled job",
+                "bgcolor": "positive",
+            }
+            events.append(event)
+
+    return jsonify(events)
 
 """
 
@@ -224,13 +245,49 @@ def save_model1():
     js = {
         "model_name":"CF",
         "path":f"model/CF/{filename}",
+        'setting': 'automatic',
         "date":datetime.now(),
     }
     model.insert_one(js)
 
-    return "Hlleow"
+    return "save"
 
-scheduler.add_job(id='save_model1', func=save_model1, trigger='interval', hours=6)
+
+
+
+scheduler.add_job(id='my_job', func=save_model1, replace_existing=True,trigger='interval', hours=6)
+
+
+"""
+
+scheduler custom
+
+"""
+
+
+@recommend_rule.route('/schedule-job', methods=['POST'])
+def schedule_job():
+    
+    _json = request.json
+    job_id = _json.get('job_id')
+    trigger_type = _json.get('trigger_type')
+    trigger_value = _json.get('trigger_value')
+
+    
+    if trigger_type == 'interval':
+        pass
+        # scheduler.add_job(id=job_id, func=save_model1, trigger=trigger_type, seconds=int(trigger_value))
+    elif trigger_type == 'cron':
+        
+        # parse the cron expression to get the fields
+        fields = trigger_value.split('-')
+        scheduler.add_job(id=job_id, func=save_model1, trigger=trigger_type,year=fields[0], month=fields[1], day=fields[2], hour=fields[3], minute=fields[4])
+        return jsonify({'msg':'save add'}),201
+    else:
+        
+        return jsonify({'msg':'save failed'}),401
+
+
 
 """
 
@@ -369,6 +426,8 @@ def resume_job():
 @recommend_rule.route('/check_job', methods=['GET'])
 def check_job():
     job = scheduler.get_job('save_model1')
+    print(job)
+    print(job.next_run_time)
     if job.next_run_time:
         return jsonify({"msg":"Job is running"}),200
     else:
@@ -502,83 +561,6 @@ def recommend():
 
         return jsonify(b)
     
-
-# @recommend_rule.route('/take', methods=['GET',"POST","UPDATE"])
-# def take():
-
-#     db = client['Infomations']
-#     _json = request.json
-#     users_collection = db['User']
-#     name = _json['name']
-#     gender = _json['gender']
-#     age = _json['age']
-#     uid = _json['uid']
-
-#     with open('age_gender_rules1.pkl', 'rb') as f:
-#         age_gender_rules = pickle.load(f)
-#     mapage = lambda x: '10-20' if x <= 20 else '21-40' if x <= 40 else '41-60' if x <= 60 else '60+'
-
-#     if name and gender and age and uid and request.method == "POST":
-#         _json = request.json
-#         doc = users_collection.find_one({"name": _json["name"]})
-#         if doc:
-#             return jsonify({'msg': 'exctied'}), 401
-        
-#         users_collection.insert_one(_json)
-#         age_map = mapage(age)
-#         rules = age_gender_rules[(age_map, gender)]
-
-#     # Sort the rules by lift and return the top N rules
-
-#         sorted_rules = rules.sort_values(by='confidence', ascending=False).head(10)
-#         recommendations = [list(r) for r in sorted_rules['consequents'].tolist()]
-
-#         return jsonify({'recommendations': recommendations})
-    
-#     if uid and request.method == "GET":
-#         doc = users_collection.find({"uid": _json["uid"]})
-#         age = 0
-#         gender_map = ""
-#         for x in doc:
-#             age = x['age']
-#             gender_map = x['gender']
-#         age_map = mapage(age)
-#         rules = age_gender_rules[(age_map, gender_map)]
-#     # Sort the rules by lift and return the top N rules
-#         sorted_rules = rules.sort_values(by='confidence', ascending=False).head(10)
-#         recommendations = [list(r) for r in sorted_rules['consequents'].tolist()]
-
-#         return jsonify({'recommendations': recommendations})
-   
-
-    # return jsonify({'msg': 'User created successfully'}), 201
-    # with open('age_gender_rules1.pkl', 'rb') as f:
-    #     age_gender_rules = pickle.load(f)
-
-    # recommend_rule = Blueprint('recommend_rule', __name__)
-
-
-
-    # Load the model from the file
-    # global age_gender_rules
-    # Get the user's age group and gender
-    # user_age_group = request.json['age_group']
-    # user_gender = request.json['gender']
-
-
-    # else:
-    #     return jsonify(user_name), 400
-    # Get the association rules for the user's age group and gender
-    # rules = age_gender_rules.get((user_age_group, user_gender))
-    # if rules is None:
-    #     return jsonify({'error': 'No rules found for the given age group and gender.'}), 400
-    
-    # # Sort the rules by lift and return the top N rules
-    # N = request.json.get('N', 5)
-    # sorted_rules = rules.sort_values(by='lift', ascending=False).head(N)
-    # recommendations = [list(r) for r in sorted_rules['consequents'].tolist()]
-
-    # return jsonify({'recommendations': recommendations})
 
 """
 

@@ -1,5 +1,5 @@
 <template>
-    <Pie v-if ='loaded' ref="myPieChart" :data="chartData"></Pie>
+    <Pie  v-if ='loaded' ref="myPieChart" :data="chartData" ></Pie>
   </template>
   
   <script>
@@ -24,7 +24,10 @@
             ],
             data: [0, 0, 0]
           }
-        ]
+        ],
+        chartOptions: {
+        responsive: true
+      }
       },
       loaded : false
     }),

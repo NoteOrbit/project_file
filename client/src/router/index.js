@@ -5,7 +5,7 @@ import Transaction from '../views/Transaction.vue'
 import Model from '../views/Model.vue'
 import Register from '../views/Register.vue'
 import About from '../views/AboutView.vue'
-import User from '../views/User.vue'
+import store from '../store';
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -55,14 +55,6 @@ const router = createRouter({
       },
     },
     {
-      path: "/User",
-      name: "User",
-      component: User,
-      meta: {
-        requiresAuth: true,
-      },
-    },
-    {
       path: '/:catchAll(.*)*',
       name: "PageNotFound",
       component: () => import("../views/NotFound.vue"),
@@ -72,15 +64,37 @@ const router = createRouter({
     },
   ],
 });
-router.beforeEach((to, from, next) => {
-  console.log(localStorage.getItem("token"));
+// router.beforeEach((to, from, next) => {
+//   console.log(localStorage.getItem("token"));
+//   if (to.matched.some((record) => record.meta.requiresAuth)) {
+//     if (!localStorage.getItem("token")) {
+//       next({
+//         path: "/login",
+//         query: { redirect: to.fullPath },
+//       }
+//       );
+//       console.log(123123)} else {
+//       next();
+//       console.log(222222)
+//     }
+//   } else if(to.path === '/') {
+//     next('/home');
+//     console.log(111111)
+//   } else {
+//     next();
+//     console.log(44444) // make sure to always call next()!
+//   }
+// });
+router.beforeEach(async (to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
-    if (!localStorage.getItem("token")) {
-      next({
+    const tokenValid = await store.dispatch('checkTokenValidity');
+    console.log(tokenValid)
+    if (!tokenValid) {
+            next({
         path: "/login",
         query: { redirect: to.fullPath },
       }
-      );
+            );
       console.log(123123)} else {
       next();
       console.log(222222)
@@ -93,5 +107,6 @@ router.beforeEach((to, from, next) => {
     console.log(44444) // make sure to always call next()!
   }
 });
+
 
 export default router;
