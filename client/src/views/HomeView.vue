@@ -16,7 +16,7 @@ import box_count from '../components/box_count.vue'
                 <box />
 
                 <div>
-                    <div class="row justify-center q-gutter-sm ">
+                    <div class="row justify-center q-gutter-sm q-ma-xs ">
                         <div class="col-12 col-md-auto">
                             <q-card class="my-card  text-white ">
                                 <q-responsive :ratio="1"  style="width: 500px; max-width: 100%;">
@@ -62,9 +62,18 @@ import box_count from '../components/box_count.vue'
                             </q-responsive>
                         </div>
                     </div> -->
-                    <div>
+
+
+
+
+                    <!-- <div>
                         <box_count />
-                    </div>
+                    </div> -->
+
+
+
+
+
                 </div>
             </q-page>
         </q-page-container>

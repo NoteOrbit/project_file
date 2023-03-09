@@ -173,6 +173,13 @@
     <q-select filled v-model="model" :options="options" label="Filled" />
       </div> -->
 
+
+
+
+
+
+
+
         <div>
           <div class="q-pa-md">
             <div class="col">
@@ -210,7 +217,7 @@
                   <q-td>{{ row.setting ? row.setting : '-' }}</q-td>
                   <q-td>
                     <!-- <q-btn color="primary" @click="switchModel(row)">Use This Model</q-btn> -->
-                    <q-btn color="primary" @click="row.model_name === 'CF' ? switchModel(row) : switchModel_AS(row)">
+                    <q-btn color="black" @click="row.model_name === 'CF' ? switchModel(row) : switchModel_AS(row)">
                       Use model
                     </q-btn>
                   </q-td>

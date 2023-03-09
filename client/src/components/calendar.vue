@@ -2,43 +2,143 @@
   <div class="q-pa-md q-gutter-sm row justify-center">
     <q-btn @click=onNext style="background: black; color: white" label="Next" />
     <q-btn @click=onToday outline style="color: green" label="To Day" />
-    <q-btn @click=onToday outline style="color: green" label="Modify" />
+    
   </div>
+  <q-dialog v-model="displayEvent">
+      <div>
+        <q-card v-if="event">
+          <q-toolbar :class="displayClasses(event)"  style="min-width: 400px;">
+            <q-toolbar-title>
+              {{ event.title }}
+            </q-toolbar-title>
+            <q-btn flat round color="white" icon="delete" v-close-popup @click="deleteEvent(event)"></q-btn>
+            <q-btn flat round color="white" icon="edit" v-close-popup @click="editEvent(event)"></q-btn>
+            <q-btn flat round color="white" icon="close" v-close-popup></q-btn>
+          </q-toolbar>
+          <q-card-section class="inset-shadow">
+            <div v-if="event.allDay" class="text-caption">{{ getEventDate(event) }}</div>
+            {{ event.details }}
+            <div v-if="event.time" class="text-caption">
+              <div class="row full-width justify-start" style="padding-top: 12px;">
+                <div class="col-12">
+                  <div class="row full-width justify-start">
+                    <div class="col-5" style="padding-left: 20px;">
+                      <strong>Start Time:</strong>
+                    </div>
+                    <div class="col-7">
+                      {{ event.time }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </q-card-section>
+          <q-card-actions align="right">
+            <q-btn flat label="OK" color="primary" v-close-popup></q-btn>
+          </q-card-actions>
+        </q-card>
+      </div>
+    </q-dialog>
   <div class="row justify-center">
     <div style="display: flex; justify-content: center; align-items: center; flex-wrap: nowrap;">
     </div>
     <div style="display: flex; max-width: 800px; width: 100%;">
-      <q-calendar-month ref="calendar" v-model="selectedDate" animated bordered focusable hoverable no-active-date
-        :day-min-height="60" :day-height="0" @click-date="onClickDate" @click-day="onClickDay" @change="onChange"
-        @moved="onNext">
-        <template #day="{ scope: { timestamp } }">
+      <q-calendar-month 
+      
+      ref="calendar"
+      v-model="selectedDate"
+      animated 
+      bordered 
+      focusable
+      hoverable
+      use-navigation
+      no-active-date
+      :day-min-height="60"
+      :day-height="0"
+      @click-date="onClickDate" 
+      @click-day="onClickDay" 
+      >
+       
+      <template #day="{ scope: { timestamp } }">
+          
           <template v-for="event in eventsMap[timestamp.date]" :key="event.id">
-            <div :class="badgeClasses(event, 'day')" :style="badgeStyles(event, 'day')" class="my-event">
-              <div class="title q-calendar__ellipsis">
-                <q-icon name="model_training" />{{ event.title }}
+              <q-badge
+                
+                style="width: 100%; cursor: pointer; height: 14px; max-height: 14px"
+                :class="badgeClasses(event, 'day')"
+                :style="badgeStyles(event, 'day')"
+                @click.stop.prevent="showEvent(event)"
+              >
+                <q-icon v-if="event.icon" :name="event.icon" class="q-mr-xs"></q-icon><span class="ellipsis">{{ event.title }}</span>
                 <q-tooltip>{{ event.time }}</q-tooltip>
-              </div>
-            </div>
+              </q-badge>
+            </template>
           </template>
-        </template>
+        
       </q-calendar-month>
     </div>
   </div>
   <q-dialog v-model="showDialog">
     <q-card>
-      <div class="q-pa-md ">
-        <div class="text-h6">Add Job Details</div>
+      
+
         <q-form class="q-gutter-sm" @submit.prevent="submitJob">
+          <q-toolbar class="bg-green text-white">
+          <q-toolbar-title >
+                Add job detail
+              </q-toolbar-title>
+            </q-toolbar>
+            <q-card-section>
           <q-input v-model="jobId" label="Job ID" :rules="[ val => val && val.length > 0 || 'Please type something']"/>
-          <!-- <q-select v-model="jobType" :options="jobTypeOptions" label="Job Type" /> -->
-          <q-time v-model="selectedDateTime" mask=HH-mm label="Date and Time" now-btn landscape />
+          
+          <q-time color='green' v-model="selectedDateTime" mask=HH-mm label="Date and Time" now-btn landscape />
           <div class="q-mt-md">
             <q-btn type="submit" label="Add Job" class="full-width" />
           </div>
+        </q-card-section>
         </q-form>
-      </div>
+      
     </q-card>
   </q-dialog>
+
+     
+    <!-- add/edit an event -->
+    <q-dialog v-model="addEvent" no-backdrop-dismiss>
+      <div>
+        <q-form
+          v-if="contextDay"
+          ref='event'
+          @submit="onSubmit"
+          @reset="onReset"
+        >
+          <q-card v-if="addEvent" >
+            <q-toolbar class="bg-green text-white">
+              <q-toolbar-title>
+                Job Modify
+              </q-toolbar-title>
+              <q-btn flat round color="white" icon="close" v-close-popup></q-btn>
+            </q-toolbar>
+            <q-card-section class="inset-shadow">
+              <q-input
+                v-model="eventForm.title"
+                label="Title"
+                :rules="[v => v && v.length > 0 || 'Field cannot be empty']"
+                autofocus
+              />
+              <q-time color="green" v-model="selectedDateTime" mask=HH-mm label="Date and Time" now-btn landscape />
+
+            </q-card-section>
+            <q-card-actions align="right">
+              <q-btn flat label="OK" type="submit" color="primary"></q-btn>
+              <q-btn flat label="Cancel" type="reset" color="primary" v-close-popup></q-btn>
+            </q-card-actions>
+          </q-card>
+        </q-form>
+      </div>
+    </q-dialog>
+
+
+
 </template>
 
 <script>
@@ -49,27 +149,54 @@ import {
   parseTimestamp,
   today
 } from '@quasar/quasar-ui-qcalendar/src/index.js'
+import QCalendar from '@quasar/quasar-ui-qcalendar'
 import '@quasar/quasar-ui-qcalendar/src/QCalendarVariables.sass'
 import '@quasar/quasar-ui-qcalendar/src/QCalendarTransitions.sass'
 import '@quasar/quasar-ui-qcalendar/src/QCalendarMonth.sass'
 import { defineComponent } from 'vue'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import axios from '../axios'
 
+
+const formDefault = {
+  title: '',
+  details: '',
+
+}
 
 export default defineComponent({
   name: 'MonthSlotDay',
   components: {
     QCalendarMonth
   },
+  setup () {
+    const moreContent = ref(true)
+
+    return {
+      layout: ref(false),
+
+      moreContent,
+      contentSize: computed(() => moreContent.value ? 150 : 5),
+      drawer: ref(false),
+      drawerR: ref(false),
+
+      lorem: 'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Natus, ratione eum minus fuga, quasi dicta facilis corporis magnam, suscipit at quo nostrum!'
+    }
+  },
+
+
   data() {
     return {
       selectedDate: today(),
       showDialog: false,
       jobId: '',
+      displayEvent: false,
+      addEvent: false,
+      eventForm: { ...formDefault },
       // jobType: null,
       // jobTypeOptions: ['Corn','interval'],
       events: [],
+      event: null,
       des: null,
       selectedDateTime: ref(null)
     }
@@ -101,15 +228,14 @@ export default defineComponent({
           if (event.days !== undefined) {
             let timestamp = parseTimestamp(event.date)
             let days = event.days
-            // add a new event for each day
-            // skip 1st one which would have been done above
+
             do {
               timestamp = addToDate(timestamp, { day: 1 })
               if (!map[timestamp.date]) {
                 map[timestamp.date] = []
               }
               map[timestamp.date].push(event)
-              // already accounted for 1st day
+
             } while (--days > 1)
           }
         })
@@ -119,6 +245,51 @@ export default defineComponent({
     }
   },
   methods: {
+      resetForm () {
+      this.$set(this, 'eventForm', { ...formDefault })
+    },
+    displayClasses (event) {
+      return {
+        [`text-white bg-${event.bgcolor}`]: true,
+        'rounded-border': true
+      }
+    },
+    editEvent (event) {
+      // this.resetForm()
+      this.contextDay = { ...event }
+      let timestamp
+      if (event.time) {
+        
+        timestamp = QCalendar.parseTimestamp(event.date + ' ' + event.time)
+        
+        
+      }
+      else {
+        timestamp = QCalendar.parseTimestamp(this.contextDay.date + ' 00:00')
+      }
+      
+      this.eventForm.allDay = !event.time
+      this.eventForm.bgcolor = event.bgcolor
+      this.eventForm.icon = event.icon
+      this.eventForm.title = event.title
+      this.eventForm.details = event.details
+      this.addEvent = true // show dialog
+    },
+    deleteEvent (event) {
+      const index = this.findEventIndex(event)
+      if (index >= 0) {
+        this.events.splice(index, 1)
+      }
+    },
+    findEventIndex (event) {
+      for (let i = 0; i < this.events.length; ++i) {
+        if (event.title === this.events[i].title &&
+          event.details === this.events[i].details &&
+          event.date === this.events[i].date) {
+          return i
+        }
+      }
+    },
     badgeClasses(event, type) {
       return {
         [`text-white bg-${event.bgcolor}`]: true,
@@ -132,8 +303,30 @@ export default defineComponent({
       s.bottom = 0
       return s
     },
+    showEvent (event) {
+      
+      
+        this.event = event
+        this.displayEvent = true
+      
+    },
+    getEventDate (event) {
+      const parts = event.date.split('-')
+      const date = new Date(parts[0], parts[1] - 1, parts[2])
+      return this.dateFormatter.format(date)
+    },
+    onClickCalendar (data) {
+      console.log('Clicked calendar:', data)
+    },
+
     onChange(data) {
       console.log('onChange', data)
+    },
+    clickContent(data) {
+      console.log('clickContent', data)
+    },
+    resourceClicked ({ scope, event }) {
+      console.log('resource clicked:', scope)
     },
     onClickDate(data) {
       console.log('onClickDate', data)
@@ -178,3 +371,24 @@ export default defineComponent({
   },
 })
 </script>
+<style lang="sass" scoped>
+.my-event
+  position: relative
+  font-size: 12px
+  width: 100%
+  margin: 1px 0 0 0
+  justify-content: center
+  text-overflow: ellipsis
+  overflow: hidden
+  cursor: pointer
+.title
+  position: relative
+  display: flex
+  justify-content: center
+  align-items: center
+  height: 100%
+.text-white
+  color: white
+.rounded-border
+  border-radius: 2px
+</style>

@@ -1,7 +1,7 @@
 <template>
   <q-header elevated class="bg-black">
     <q-toolbar>
-      <q-toolbar-title>Recommendation system beackend</q-toolbar-title>
+      <q-toolbar-title><strong>RECOMMENDATION SYSTEM BACKEND</strong></q-toolbar-title>
       <q-btn flat @click="drawer = !drawer" round dense icon="menu" />
     </q-toolbar>
   </q-header>
@@ -36,7 +36,7 @@
         </q-item>
         <q-item clickable v-ripple @click='logoutDialog = true'>
           <q-item-section avatar>
-            <q-icon name="exit_to_app"/>
+            <q-icon name="logout"/>
           </q-item-section>
           <q-item-section>
             Logout
@@ -46,7 +46,7 @@
       <q-dialog v-model="logoutDialog" persistent>
           <q-card>
             <q-card-section class="row items-center">
-              <q-avatar icon="exit_to_app" color="black" text-color="white" />
+              <q-avatar icon="logout" color="black" text-color="white" />
               
               <span class="q-ml-sm">Are you sure you want to logout?</span>
             </q-card-section>
@@ -68,7 +68,7 @@
           <img src="../assets/proflie.png">
         </q-avatar>
         <div class="text-weight-bold">{{ currentUser }}</div>
-        <div>@Data Sci</div>
+        <div>@data scientist</div>
       </div>
     </q-img>
   </q-drawer>

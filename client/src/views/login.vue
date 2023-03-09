@@ -6,7 +6,7 @@
       
         <q-card class="text-left  q-ma-md">
           <q-card-section >
-            <h1 class="Login">Login system</h1>
+            <h2 class="Login"><q-icon name="login" /> Login Dashboard</h2>
             <q-form @submit.prevent="doLogin" class="q-gutter-y-md" >
             <q-input v-model="email" type="username" label="Username" class="mb-4" :rules="[ val => val && val.length > 0 || 'Please type something']"/>
             <q-input v-model="password" type="password" label="Password" class="mb-4" :rules="[ val => val && val.length > 0 || 'Please type something']" />

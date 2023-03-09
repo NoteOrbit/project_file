@@ -42,7 +42,7 @@ const particlesLoaded = async container => {
                             color: '#000000',
                             distance: 150,
                             enable: true,
-                            opacity: 0.2,
+                            opacity: 0.3,
                             width: 1
                         },
                         collisions: {
@@ -51,7 +51,7 @@ const particlesLoaded = async container => {
                         move: {
                             direction: 'none',
                             enable: true,
-                            outMode: 'bounce',
+                            
                             random: false,
                             speed: 1.5,
                             straight: false
@@ -64,7 +64,7 @@ const particlesLoaded = async container => {
                             value: 80
                         },
                         opacity: {
-                            value: 0.2
+                            value: 0.3
                         },
                         shape: {
                             type: 'circle'
