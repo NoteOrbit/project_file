@@ -1,9 +1,13 @@
 <template>
+  
   <div class="q-pa-md q-gutter-sm row justify-center">
-    <q-btn @click=onNext style="background: black; color: white" label="Next" />
+    
+    <q-btn @click=onNext style="background: black; color: white" label="Next M" />
     <q-btn @click=onToday outline style="color: green" label="To Day" />
   </div>
+  
   <div class="row justify-center">
+    
     <div style="display: flex; justify-content: center; align-items: center; flex-wrap: nowrap;">
     </div>
     <div style="display: flex; max-width: 800px; width: 100%;">
@@ -12,21 +16,37 @@
         @moved="onNext">
         <template #day="{ scope: { timestamp } }">
           <template v-for="event in eventsMap[timestamp.date]" :key="event.id">
-            <div :class="badgeClasses(event, 'day')" :style="badgeStyles(event, 'day')" class="my-event">
+            <div :class="badgeClasses(event, 'day')"  class="my-event">
               <div class="title q-calendar__ellipsis">
-                <q-icon name="model_training" />{{ event.title }}
+                <q-icon name="model_training" />{{ event.id }}
                 <q-tooltip>{{ event.time }}</q-tooltip>
               </div>
             </div>
           </template>
         </template>
       </q-calendar-month>
+      
     </div>
   </div>
   <q-dialog v-model="showDialog">
     <q-card>
       <div class="q-pa-md ">
         <div class="text-h6">Add Job Details</div>
+        <q-form class="q-gutter-sm" @submit.prevent="submitJob">
+          <q-input v-model="jobId" label="Job ID" :rules="[ val => val && val.length > 0 || 'Please type something']"/>
+          <!-- <q-select v-model="jobType" :options="jobTypeOptions" label="Job Type" /> -->
+          <q-time v-model="selectedDateTime" mask=HH-mm label="Date and Time" now-btn />
+          <div class="q-mt-md">
+            <q-btn type="submit" label="Add Job" class="full-width" />
+          </div>
+        </q-form>
+      </div>
+    </q-card>
+  </q-dialog>
+  <q-dialog v-model="showDialog">
+    <q-card>
+      <div class="q-pa-md ">
+        <div class="text-h6">detail</div>
         <q-form class="q-gutter-sm" @submit.prevent="submitJob">
           <q-input v-model="jobId" label="Job ID" :rules="[ val => val && val.length > 0 || 'Please type something']"/>
           <!-- <q-select v-model="jobType" :options="jobTypeOptions" label="Job Type" /> -->
@@ -79,7 +99,7 @@ export default defineComponent({
         this.events = response.data.map(event => {
           return {
             id: event.id,
-            title: event.title,
+            title:event.title,    
             date: event.date,
             time: event.time,
             details: event.details,
@@ -121,15 +141,9 @@ export default defineComponent({
     badgeClasses(event, type) {
       return {
         [`text-white bg-${event.bgcolor}`]: true,
-        'rounded-border': true
+        'rounded-border': true,
+        
       }
-    },
-    badgeStyles(day, event) {
-      const s = {}
-      s.left = day.weekday === 0 ? 0 : (day.weekday * this.parsedCellWidth) + '%'
-      s.top = 0
-      s.bottom = 0
-      return s
     },
     onChange(data) {
       console.log('onChange', data)
@@ -177,3 +191,16 @@ export default defineComponent({
   },
 })
 </script>
+<style lang="sass" scoped>
+.my-event
+  position: relative
+  font-size: 12px
+  width: 100%
+  margin: 1px 0 0 0
+  justify-content: center
+  text-overflow: ellipsis
+  overflow: hidden
+  cursor: pointer
+.rounded-border
+  border-radius: 3px
+</style>

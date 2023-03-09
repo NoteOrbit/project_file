@@ -16,6 +16,7 @@ from mlxtend.frequent_patterns import apriori
 from mlxtend.frequent_patterns import association_rules
 from pprint import pprint ## show pprint format json
 from datetime import datetime, timedelta
+from surprise import accuracy, Dataset, SVD,Reader
 
 
 
@@ -44,10 +45,14 @@ current_model = None ## svd
 currnet_model_as = None ## as
 global path_current_as
 global path_current
-path_current_as = ''
+path_current_as = '/model/apiori/association2023_02_11_19_44_01.pkl'
 path_current = setup_model_cf[0]['path']
 with open(setup_model_cf[0]['path'], 'rb') as f:
     current_model = pickle.load(f)
+with open('./model/apiori/association2023_02_11_19_44_01.pkl', 'rb') as f:
+    currnet_model_as = pickle.load(f)
+
+
 '''
 
 CLASS SHOW SVD RECOMMENDATIONS
@@ -55,14 +60,12 @@ CLASS SHOW SVD RECOMMENDATIONS
 '''
 class CFRecommender2:
     
-    MODEL_NAME = 'Collaborative Filtering'
+
     
-    def __init__(self, cf_predictions_df, projects_df=None):
+    def __init__(self, cf_predictions_df):
         self.cf_predictions_df = cf_predictions_df
-        self.projects_df = projects_df
         
-    def get_model_name(self):
-        return self.MODEL_NAME
+
         
     def recommend_projects(self, donor_id, projects_to_ignore=[], topn=10):
         # Get and sort the donor's predictions
@@ -461,13 +464,12 @@ def recommend():
 
     if user_check:
         preds_df_1 = current_model ## set up model
-        print(preds_df_1)
         data = users_collection.find({}, {'Store':1, '_id':0,'User':1,'Rating':1})
         df11 =  pd.DataFrame(list(data))
 
         user_df = df11.pivot_table(index="User",columns="Store",values='Rating').fillna(0)
 
-        hh = CFRecommender2(preds_df_1,user_df)
+        hh = CFRecommender2(preds_df_1)
         sss = user_df.loc[user_name]
         indexes = sss[sss > 0].index
 
@@ -475,12 +477,20 @@ def recommend():
         json2 = data2['Store']
         lista = [x for x in json2]
         
+        """
+        
+        data pipeline
+        
+        """
+
         pipeline = [
             {"$match": {"store": {"$in": lista}}},
             {"$addFields": { "index": { "$indexOfArray": [ lista, "$store" ] } } },
             {"$sort": {"index": 1}},
             {"$project": {"_id":0}}
         ]
+
+
         store = db['new_collection']
         results = list(store.aggregate(pipeline))
         results.append(current_app.config['path'])
@@ -490,7 +500,6 @@ def recommend():
         }
         s = json.dumps(messs)
         b = json.loads(s)
-
 
         log = client['system']
         log_system = log['recommendations']
@@ -593,7 +602,6 @@ POPULATIONS BASE MODEL
 
 @recommend_rule.route('/recommend_populations', methods=['GET'])
 def recommend1():
-    client = MongoClient('localhost', 27017)
     db = client['Infomations']
     users_collection = db['Transaction_user']
 

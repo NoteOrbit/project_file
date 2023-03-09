@@ -35,10 +35,7 @@
                 :style="badgeStyles(event, 'day')"
                 class="my-event"
               >
-                <div class="title q-calendar__ellipsis">
-                  {{ event.title + (event.time ? ' - ' + event.time : '') }}
-                  <q-tooltip>{{ event.details }}</q-tooltip>
-                </div>
+            
               </div>
             </template>
           </template>
