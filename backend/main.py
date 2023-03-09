@@ -26,7 +26,7 @@ def create_app():
     CORS(app, origins='*',supports_credentials=True)
     jwt = JWTManager(app)  # initialize JWTManager
     app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')
-    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=60)
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=5)
     app.config['SCHEDULER_API_ENABLED'] = True
     jwt.init_app(app)
     app.register_blueprint(recom_near)

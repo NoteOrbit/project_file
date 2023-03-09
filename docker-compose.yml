@@ -44,8 +44,8 @@ services:
       - mongodb
     networks:
       - mynetwork
-      
-
+    environment:
+      TZ: Asia/Bangkok
       
   mongodb:
     image: mongo
@@ -75,7 +75,9 @@ services:
       - "8080:8080"
     networks:
       - mynetwork
-
+    environment:
+      TZ: Asia/Bangkok
+      
   kong-database:
     image: postgres:9.6
     container_name: kong-postgres

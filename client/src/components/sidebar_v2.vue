@@ -62,7 +62,7 @@
         </q-dialog>
     </q-scroll-area>
 
-    <q-img class="absolute-top" src="https://wallpaperbat.com/img/240755-4k-material-wallpaper.jpg" style="height: 150px">
+    <q-img class="absolute-top" src="https://images.unsplash.com/photo-1616712134411-6b6ae89bc3ba?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxleHBsb3JlLWZlZWR8NXx8fGVufDB8fHx8&w=1000&q=80" style="height: 150px">
       <div class="absolute-bottom bg-transparent">
         <q-avatar size="56px" class="q-mb-sm">
           <img src="../assets/proflie.png">
@@ -76,20 +76,25 @@
 
 <script>
 import { ref } from 'vue'
-import { mapGetters } from 'vuex'
 export default {
   setup() {
     return {
       drawer: ref(false),
       logoutDialog: ref(false),
       cancelEnabled: ref(false)
+      
     }
   },
   currentDateTime: '',
   computed: {
-    ...mapGetters(['currentUser'])
+    currentUser() {
+      return this.$store.state.currentUser;
+    }
   },
+
+  
   created() {
+    console.log(this.currentUser);
     this.updateDateTime()
   },
   methods: {

@@ -7,59 +7,68 @@ import box_count from '../components/box_count.vue'
 </script>
 
 <template>
-    <!-- <navbar /> -->
+    <q-layout>
 
-    
-            
-                <div class="q-pa-md ">
+        <q-page-container>
+            <q-page>
+            <div class="q-pa-md ">
 
-                    <div>
-                        <box />
+                <box />
+
+                <div>
+                    <div class="row justify-center q-gutter-sm ">
+                        <div class="col-12 col-md-auto">
+                            <q-card class="my-card  text-white ">
+                                <q-responsive :ratio="1"  style="width: 500px; max-width: 100%;">
+                                <q-card-section>
+                 
+                                            <piechart />
+     
+                                </q-card-section>
+                            </q-responsive>
+                            </q-card>
+                        </div>
+                        <div class="col-12 col-md-auto">
+
+
+                            <q-card class="my-card text-white ">
+                                <q-responsive :ratio="1" style="width: 500px; max-width: 100%;">
+                                <q-card-section>
+                                    
+                                            <chart />
+
+                                </q-card-section>
+                            </q-responsive>
+
+                            </q-card>
+                        </div>
                     </div>
-
-
-
-                    <!-- 
-                            <q-row>
-                                <q-col >
-                                    <q-responsive :ratio="1">
-                                <piechart  />
-                            </q-responsive>
-                                </q-col>
-                                <q-col>
-                                    <q-responsive :ratio="1">
-                                        <chart/>
-                            </q-responsive>
-                                </q-col>
-
-
-                                
-                            </q-row> -->
-
-                    <div class="q-pa-md">
+                </div>
+                    <!-- <div class="q-pa-md">
                         <div class="row items-start q-gutter-md">
                             <q-responsive :ratio="1" class="col" style="width: 500px; max-width: 100%;">
-                                <q-card class="column flex flex-center q-pa-md" >
-                                     
-                                    <piechart/>
-        
+                                <q-card class="column flex flex-center q-pa-md">
+
+                                    <piechart />
+
                                 </q-card>
                             </q-responsive>
-                            
+
                             <q-responsive :ratio="1" class="col" style="width: 500px; max-width: 100%;">
                                 <q-card class="column flex flex-center q-pa-md">
                                     <chart />
-                                    
-                                </q-card> 
+
+                                </q-card>
                             </q-responsive>
                         </div>
-                    </div>
+                    </div> -->
                     <div>
-                        <box_count/>
+                        <box_count />
                     </div>
                 </div>
-
-    
+            </q-page>
+        </q-page-container>
+    </q-layout>
 </template>
 <script>
 import axios from '../axios.js';

@@ -1,6 +1,6 @@
 <template >
     <div>
-        <q-row class="row justify  q-gutter-sm ">
+        <q-row class="row justify q-gutter-sm ">
 
             <q-card class="my-card bg-black text-white" style="width: 300px">
 

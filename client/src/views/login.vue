@@ -3,8 +3,8 @@
     <q-page-container>
 
       <q-page class="flex flex-center ">
-        
-        <q-card class="text-left  ">
+      
+        <q-card class="text-left  q-ma-md">
           <q-card-section >
             <h1 class="Login">Login system</h1>
             <q-form @submit.prevent="doLogin" class="q-gutter-y-md" >
@@ -21,9 +21,6 @@
   </q-layout>
 </template>
 <script>
-import axios from '../axios.js'
-// import { mapActions } from 'vuex'
-// import store from '../store'
 import { useQuasar, QSpinnerFacebook } from 'quasar'
 import { mapActions } from 'vuex';
 export default {
@@ -35,22 +32,14 @@ export default {
   },
   methods: {
     ...mapActions(['login']),
+    
     async doLogin() {
-      // this.$q.loading.show({
-      //   spinner: QSpinnerFacebook,
 
-      //   spinnerSize: 140,
-
-      //   message: 'Please wait',
-      //   messageColor: 'white'
-      // })
       const success = await this.login({
         username: this.email,
         password: this.password,
       });
-      
       if (success) {
-        this.$q.loading.hide()
         this.$router.push('/home');
       }
        else {

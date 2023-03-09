@@ -2,6 +2,7 @@
   <div class="q-pa-md q-gutter-sm row justify-center">
     <q-btn @click=onNext style="background: black; color: white" label="Next" />
     <q-btn @click=onToday outline style="color: green" label="To Day" />
+    <q-btn @click=onToday outline style="color: green" label="Modify" />
   </div>
   <div class="row justify-center">
     <div style="display: flex; justify-content: center; align-items: center; flex-wrap: nowrap;">
@@ -30,7 +31,7 @@
         <q-form class="q-gutter-sm" @submit.prevent="submitJob">
           <q-input v-model="jobId" label="Job ID" :rules="[ val => val && val.length > 0 || 'Please type something']"/>
           <!-- <q-select v-model="jobType" :options="jobTypeOptions" label="Job Type" /> -->
-          <q-time v-model="selectedDateTime" mask=HH-mm label="Date and Time" now-btn />
+          <q-time v-model="selectedDateTime" mask=HH-mm label="Date and Time" now-btn landscape />
           <div class="q-mt-md">
             <q-btn type="submit" label="Add Job" class="full-width" />
           </div>

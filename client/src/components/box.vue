@@ -1,9 +1,8 @@
 <template>
   
-
-  <q-row class="row justify  q-gutter-sm flex flex-center">
-    
-    <q-card class="my-card bg-indigo-3 text-white" v-for="item in data.data" :key="item._id"  style="width: 500px">
+  <div class="row justify-center q-gutter-sm">
+    <div class="col-12 col-md-auto" v-for="item in data.data" :key="item._id">
+    <q-card class="my-card bg-black text-white" >
 
         <q-card-section>
           <h5>{{ item._id }}</h5>
@@ -11,8 +10,9 @@
         </q-card-section>
 
     </q-card>
-  </q-row>
-  
+    </div>
+  </div>
+
 </template>
 <script>
 import axios from '../axios.js';

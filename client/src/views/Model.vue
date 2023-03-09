@@ -1,105 +1,94 @@
 
 <template>
-<q-layout>
+  <q-layout>
 
-  <q-page-container>
-    <q-page>
-    <div class="q-pa-md">
-  <div class="col">
-    <div class="flex justify-center">
-    <span><h4>Automatic retraining</h4></span>
-  </div>
-    
-    
-    <div>
-      
-      <calendar/>
-      <div class="flex flex-center">
-      <q-toggle checked-icon="check" size="L" v-model="checked" color="green" :label="`System that will allow you to retrain the model every 6 hours.`" @update:model-value="checkAPIStatus"/>
-    </div>
-    </div>
-    
-    <span><h6>Model SVD Current Running <strong> {{current}}</strong> </h6></span>
-    <span><h6>Model ASSOCIATIONS Current Running <strong> {{current_as}}</strong></h6></span>
-    <div class="col">
+    <q-page-container>
+      <q-page>
+        <div class="q-pa-md">
+          <div class="col">
+            <div class="flex justify-center">
+              <span>
+                <h4>Management Model Control</h4>
+              </span>
+            </div>
+            <div class="row justify-center q-gutter-sm ">
+              <div class="col-12 col-md-auto">
+              <q-card class="my-card bg-black text-white w">
 
+                <q-card-section>
+                  <h5>Collaborative filtering</h5>
+                  <strong>versions {{ current }}</strong>
+                </q-card-section>
 
-      
-    </div>
-  </div>
-</div>
+              </q-card>
+            </div>
+              <div class="col-12 col-md-auto">
+                
 
-<div v-if="checked != true">
-  <div class="q-pa-md" style="max-width: 400px">
-    <div class="q-gutter-md">
-      <q-select
-        filled
-        v-model="selectedFile"
-        :options="selectOptions"
-        label="Model"
-        emit-value
-      />
-    </div>
-  </div>
-  </div>
+                <q-card class="my-card bg-red-10 text-white">
+
+                  <q-card-section>
+                    <h5>Associations rules</h5>
+                    <strong>versions {{ current_as }}</strong>
+                  </q-card-section>
+
+                </q-card>
+              </div>
+            </div>
 
 
 
-    <div v-if="selectedFile === '1' && checked != true">
-          <q-card class="q-pa-md" style="margin: 0 auto; width: 90%;" >
-            <span>Test</span>
+            <div>
+
+              <calendar />
+              <div class="flex flex-center">
+                <q-toggle checked-icon="check" size="L" v-model="checked" color="green"
+                  :label="`System that will allow you to retrain the model every 6 hours.`"
+                  @update:model-value="checkAPIStatus" />
+              </div>
+            </div>
+            <div class="col">
+
+
+
+            </div>
+          </div>
+        </div>
+
+        <div  v-if="checked != true">
+          <div class="q-pa-md flex flex-center" >
+            <div class="q-gutter-md">
+              <q-select filled v-model="selectedFile" :options="selectOptions" label="Model" emit-value />
+            </div>
+          </div>
+        </div>
+
+
+
+        <div v-if="selectedFile === '1' && checked != true">
+          <q-card class="q-pa-md" style="margin: 0 auto; width: 90%;">
             <q-card-section>
-              <q-slider
-                v-model="Support"
-                label-always
-                :min="1"
-                :max="15"
-              />
+              <q-slider v-model="Support" label-always :min="1" :max="15" />
               <span>Support</span>
-              <q-slider
-                v-model="Confidence"
-                label-always
-                :min="0"
-                :max="100"
-              />
+              <q-slider v-model="Confidence" label-always :min="0" :max="100" />
               <span>Threshold</span>
             </q-card-section>
             <q-card-section>
               <q-item-label header>Sort By</q-item-label>
               <q-item>
-                <q-radio
-                  v-model="sortBy"
-                  val="confidence"
-                  label="Confidence"
-                  required
-                />
+                <q-radio v-model="sortBy" val="confidence" label="Confidence" required />
               </q-item>
               <q-item>
-                <q-radio
-                  v-model="sortBy"
-                  val="lift"
-                  label="Lift"
-                  required
-                />
+                <q-radio v-model="sortBy" val="lift" label="Lift" required />
               </q-item>
             </q-card-section>
             <q-card-section>
               <q-item-label header>Base On</q-item-label>
               <q-item>
-                <q-radio
-                  v-model="BaseOn"
-                  val="like"
-                  label="Like"
-                  required
-                />
+                <q-radio v-model="BaseOn" val="like" label="Like" required />
               </q-item>
               <q-item>
-                <q-radio
-                  v-model="BaseOn"
-                  val="view"
-                  label="View"
-                  required
-                />
+                <q-radio v-model="BaseOn" val="view" label="View" required />
               </q-item>
             </q-card-section>
             <q-card-actions align="right">
@@ -109,19 +98,13 @@
           </q-card>
 
 
-    </div>
-    <div v-if="selectedFile === '2'&& checked != true">
+        </div>
+        <div v-if="selectedFile === '2' && checked != true">
 
           <q-card class="q-pa-md " style="margin: 0 auto; width: 90%;">
             <q-card-section>
-              
-              <q-slider
-                v-model="latent"
-                label="Latent Factor"
-                label-always
-                :min="0"
-                :max="33"
-              />
+
+              <q-slider v-model="latent" label="Latent Factor" label-always :min="0" :max="33" />
               <span>K values</span>
             </q-card-section>
             <q-card-actions align="right">
@@ -129,14 +112,14 @@
               <q-btn color="secondary" @click="reset">Cancel</q-btn>
             </q-card-actions>
           </q-card>
-    </div>
+        </div>
 
 
-  <!-- <h4 class="my-3">Manual retraining</h4>
+      <!-- <h4 class="my-3">Manual retraining</h4>
         <select v-model="selectedFile" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
           <option value="1">Apriori</option>
           <option value="2">CF</option>
-        </select> -->
+            </select> -->
 
 
       <!-- <div v-if="selectedFile === '1'">
@@ -179,87 +162,78 @@
           </div>
         <button  @click="submit2" class="btn btn-primary">Submit</button>
     </div>
-     -->
+         -->
 
 
 
 
-<!-- 
-  </div> -->
-  <!-- <div class="q-gutter-y-md column" style="max-width: 300px">
+      <!-- 
+      </div> -->
+      <!-- <div class="q-gutter-y-md column" style="max-width: 300px">
     <q-select filled v-model="model" :options="options" label="Filled" />
-  </div> -->
+      </div> -->
 
-  <div>
-  <div class="q-pa-md">
-  <div class="col">
-    <span><h4>Selected Model Version</h4></span>
-    </div>
-  </div>
-  
-  <div class="a">
-  <q-table
-    title="Log"
-    :rows='models'
-    :columns="tableColumns"
-    :pagination="{
-      type: 'normal',
-      rowsPerPage: 5,
-      rowsPerPageOptions: [10, 20, 50],
-      prevIcon: 'mdi-chevron-left',
-      nextIcon: 'mdi-chevron-right',
-      noDataIcon: 'mdi-emoticon-sad'
-    }"
-    :filter="filter1"
-    row-key="_id"
-    
+        <div>
+          <div class="q-pa-md">
+            <div class="col">
+              <span>
+                <h4>Selected Model Version</h4>
+              </span>
+            </div>
+          </div>
 
-  >
-  <template v-slot:top-right>
-        <q-input borderless dense debounce="300" v-model="filter1" placeholder="Search">
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
-      </template>
+          <div class="a">
+            <q-table title="Log" :rows='models' :columns="tableColumns" :pagination="{
+              type: 'normal',
+              rowsPerPage: 5,
+              rowsPerPageOptions: [10, 20, 50],
+              prevIcon: 'mdi-chevron-left',
+              nextIcon: 'mdi-chevron-right',
+              noDataIcon: 'mdi-emoticon-sad'
+            }" :filter="filter1" row-key="_id">
+              <template v-slot:top-right>
+                <q-input borderless dense debounce="300" v-model="filter1" placeholder="Search">
+                  <template v-slot:append>
+                    <q-icon name="search" />
+                  </template>
+                </q-input>
+              </template>
 
-    <template v-slot:body="{ row }">
+              <template v-slot:body="{ row }">
 
-      <q-tr>
-        <q-td>{{ row._id }}</q-td>
-        <q-td>{{ row.model_name }}</q-td>
-        <q-td>{{ row.date }}</q-td>
-        <q-td>{{ row.path }}</q-td>
-        <q-td>{{ row.measures ? row.measures.mse : '-'}}</q-td>
-        <q-td>{{ row.setting ? row.setting : '-'}}</q-td>
-        
-        
-        <q-td>
-          <!-- <q-btn color="primary" @click="switchModel(row)">Use This Model</q-btn> -->
-          <q-btn color="primary" @click="row.model_name === 'CF' ? switchModel(row) : switchModel_AS(row)">
-            Use model
-      </q-btn>
-        </q-td>
-      </q-tr>
-    </template>
-  </q-table>
-  
-</div>
-</div>
+                <q-tr>
+                  <q-td>{{ row._id }}</q-td>
+                  <q-td>{{ row.model_name }}</q-td>
+                  <q-td>{{ row.date }}</q-td>
+                  <q-td>{{ row.path }}</q-td>
+                  <q-td>{{ row.measures ? row.measures.mse : '-' }}</q-td>
+                  <q-td>{{ row.setting ? row.setting : '-' }}</q-td>
+                  <q-td>
+                    <!-- <q-btn color="primary" @click="switchModel(row)">Use This Model</q-btn> -->
+                    <q-btn color="primary" @click="row.model_name === 'CF' ? switchModel(row) : switchModel_AS(row)">
+                      Use model
+                    </q-btn>
+                  </q-td>
+                </q-tr>
+              </template>
+            </q-table>
+
+          </div>
+        </div>
 
 
 
 
-</q-page>
-</q-page-container>
+      </q-page>
+    </q-page-container>
 
 
 
 
 
-</q-layout>
+  </q-layout>
 
-  <!-- <div class="row">
+<!-- <div class="row">
     <div class="col-sm-4 p-2">
       <div class="p-3 bg-primary text-light rounded"><h1>correct </h1><span>1>>100</span></div>
     </div>
@@ -270,9 +244,9 @@
       <div class="p-3 bg-danger text-light rounded"><h1>Recom </h1><span>3>>300</span></div>
     </div>
   </div>
-  <hr class="mt-10 mb-1"/> -->
-  
-  <!-- <div>
+      <hr class="mt-10 mb-1"/> -->
+
+<!-- <div>
     <div class="dropdown">
     <button
       class="btn btn-secondary dropdown-toggle"
@@ -289,9 +263,7 @@
       <li><a class="dropdown-item" href="#">Something else here</a></li>
     </ul>
   </div>
-</div> -->
-
-
+    </div> -->
 </template>
 <script>
 
@@ -304,7 +276,7 @@ import axios from '../axios.js';
 import { ref } from 'vue'
 import calendar from '../components/calendar.vue';
 export default {
-  components:{
+  components: {
     calendar
   },
   setup() {
@@ -316,11 +288,11 @@ export default {
     return {
       selectOptions: [
         {
-          label: 'AS',
+          label: 'Associations rules',
           value: '1'
         },
         {
-          label: 'CF',
+          label: 'Collaborative filtering',
           value: '2'
         }
       ],
@@ -481,10 +453,20 @@ export default {
           response = await axios.get('resume_job')
           this.paused = true
           this.running = false
+          this.$q.notify({
+          color: "positive",
+          message: "Running interval",
+          position: "top-right"
+        });
         } else {
           response = await axios.get('pause_job')
           this.paused = false
           this.running = true
+          this.$q.notify({
+          color: "negative",
+          message: "Pause interval",
+          position: "top-right"
+        });
         }
         if (response.status === 200) {
           this.Status = response.data

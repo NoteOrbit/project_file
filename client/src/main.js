@@ -13,13 +13,9 @@ import { Quasar,Notify,Loading} from 'quasar'
 
 import Plugin from '@quasar/quasar-ui-qcalendar/src/QCalendarDay.js'
 import '@quasar/quasar-ui-qcalendar/src/css/calendar-day.sass'
-// Import icon libraries
 import '@quasar/extras/material-icons/material-icons.css'
-
-// Import Quasar css
 import 'quasar/src/css/index.sass'
-
-
+import Particles from "vue3-particles";
 
 
 const app = createApp(App);
@@ -40,6 +36,6 @@ app.use(Quasar, {
 app.use(router);
 app.use(store);
 app.use(Plugin);
-
+app.use(Particles)
 app.mount('#app') 
 

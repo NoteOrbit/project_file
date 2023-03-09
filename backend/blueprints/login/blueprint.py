@@ -7,6 +7,7 @@ from config import client
 
 
 # client = MongoClient('mongodb://0.tcp.ap.ngrok.io:17474', 27017)
+
 login1 = Blueprint('login', __name__)
 db = client['system']
 users_collection = db['user']

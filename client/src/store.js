@@ -49,57 +49,64 @@ const store = createStore({
   state: {
     access_token: localStorage.getItem('token') || null,
     token_valid: false,
-    currentUser: localStorage.getItem('currentUser') || null
+    currentUser: localStorage.getItem('currentUser') || null,
   },
-    mutations: {
-      setAccessToken(state, access_token) {
-        state.access_token = access_token;
-        state.token_valid = true;
-      },
-      clearAccessToken(state) {
-        state.access_token = null;
-        state.token_valid = false;
-      },
-      setCurrentUser(state, currentUser) {
-        state.currentUser = currentUser;
-        localStorage.setItem('currentUser', currentUser);
-      },
+  mutations: {
+    setAccessToken(state, access_token) {
+      state.access_token = access_token;
+      state.token_valid = true;
     },
-    actions: {
-      async checkTokenValidity({ commit, state }) {
-        if (!state.access_token) {
+    clearAccessToken(state) {
+      state.access_token = null;
+      state.token_valid = false;
+    },
+    setCurrentUser(state, currentUser) {
+      state.currentUser = currentUser;
+      localStorage.setItem('currentUser', currentUser);
+    },
+  },
+  actions: {
+    async checkTokenValidity({ commit, state }) {
+      if (!state.access_token) {
+        commit('clearAccessToken');
+        return false;
+      }
+
+      try {
+        await axios.get('/protected', {
+          headers: {
+            Authorization: `Bearer ${state.access_token}`,
+          },
+        });
+        return true;
+      } catch (error) {
+        if (error.response.status === 401 && error.response.data.msg === 'Token has expired') {
           commit('clearAccessToken');
-          return false;
         }
-  
-        try {
-          await axios.get('/protected', {
-            headers: {
-              Authorization: `Bearer ${state.access_token}`,
-            },
-          });
-          return true;
-        } catch (error) {
-          if (error.response.status === 401 && error.response.data.msg === 'Token has expired') {
-            commit('clearAccessToken');
-          }
-          return false;
-        }
-      },
-      async login({ commit }, { username, password }) {
-        try {
-          const response = await axios.post('/login', { username, password });
-          
-          const access_token = response.data.access_token;
-          localStorage.setItem('token', access_token);
-          commit('setAccessToken', access_token);
-          return true;
-        } catch (error) {
-          console.error(error);
-          return false;
-        }
-      },
+        return false;
+      }
     },
-  });
-  
-  export default store;
+    async login({ commit }, { username, password }) {
+      try {
+        const response = await axios.post('/login', { username, password });
+        
+        const access_token = response.data.access_token;
+        localStorage.setItem('token', access_token);
+        commit('setAccessToken', access_token);
+
+        // Set the current user
+        localStorage.setItem('currentUser', username);
+        
+        commit('setCurrentUser', username);
+
+
+        return true;
+      } catch (error) {
+        console.error(error);
+        return false;
+      }
+    },
+  },
+});
+
+export default store;

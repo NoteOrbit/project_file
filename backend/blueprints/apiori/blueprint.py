@@ -282,6 +282,7 @@ def schedule_job():
         # parse the cron expression to get the fields
         fields = trigger_value.split('-')
         scheduler.add_job(id=job_id, func=save_model1, trigger=trigger_type,year=fields[0], month=fields[1], day=fields[2], hour=fields[3], minute=fields[4])
+        print(scheduler.get_job(job_id))
         return jsonify({'msg':'save add'}),201
     else:
         
@@ -414,18 +415,18 @@ SETUP CORN JOB
 
 @recommend_rule.route('/pause_job', methods=['GET'])
 def pause_job():
-    scheduler.pause_job('save_model1')
+    scheduler.pause_job('my_job')
     return jsonify({"msg":"Job Paused"}),200
 
 
 @recommend_rule.route('/resume_job', methods=['GET'])
 def resume_job():
-    scheduler.resume_job('save_model1')
+    scheduler.resume_job('my_job')
     return jsonify({"msg":"Job Resumed"}),200
 
 @recommend_rule.route('/check_job', methods=['GET'])
 def check_job():
-    job = scheduler.get_job('save_model1')
+    job = scheduler.get_job('my_job')
     print(job)
     print(job.next_run_time)
     if job.next_run_time:
