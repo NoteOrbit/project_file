@@ -8,7 +8,7 @@
           <div class="col">
             <div class="flex justify-center">
               <span>
-                <h4>Management Model Control</h4>
+                <h4><b>Management Model Control</b></h4>
               </span>
             </div>
             <div class="row justify-center q-gutter-sm ">
