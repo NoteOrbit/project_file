@@ -3,7 +3,10 @@
     <q-page-container>
 
       <q-page class="flex flex-center ">
-      
+        <q-intersection
+        :key="index"
+        transition="jump-down"
+      >
         <q-card class="text-left  q-ma-md">
           <q-card-section >
             <h2 class="Login"><q-icon name="login" /> Login Dashboard</h2>
@@ -14,7 +17,7 @@
             </q-form>
           </q-card-section>
         </q-card>
-      
+      </q-intersection>
       </q-page>
 
     </q-page-container>
