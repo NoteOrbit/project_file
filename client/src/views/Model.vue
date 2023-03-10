@@ -11,31 +11,36 @@
                 <h4><b>Management Model Control</b></h4>
               </span>
             </div>
+            <q-intersection
+        :key="index"
+        transition="jump-up"
+      >
             <div class="row justify-center q-gutter-sm ">
+              
               <div class="col-12 col-md-auto">
-              <q-card class="my-card bg-black text-white w">
+                <q-card class="my-card bg-black text-white w">
 
-                <q-card-section>
-                  <h5>Collaborative filtering</h5>
-                  <strong>versions {{ current }}</strong>
-                </q-card-section>
+                  <q-card-section>
+                    <h5> <q-icon name="handshake"/> Collaborative filtering</h5>
+                    <strong>versions {{ current }}</strong>
+                  </q-card-section>
 
-              </q-card>
-            </div>
+                </q-card>
+              </div>
               <div class="col-12 col-md-auto">
-                
+
 
                 <q-card class="my-card bg-red-10 text-white">
 
                   <q-card-section>
-                    <h5>Associations rules</h5>
+                    <h5><q-icon name="rule"/> Associations rules</h5>
                     <strong>versions {{ current_as }}</strong>
                   </q-card-section>
 
                 </q-card>
               </div>
             </div>
-
+            </q-intersection>
 
 
             <div>
@@ -47,25 +52,33 @@
                   @update:model-value="checkAPIStatus" />
               </div>
             </div>
-            <div class="col">
 
-
-
-            </div>
           </div>
         </div>
 
-        <div  v-if="checked != true">
-          <div class="q-pa-md flex flex-center" >
-            <div class="q-gutter-md">
-              <q-select filled v-model="selectedFile" :options="selectOptions" label="Model" emit-value />
-            </div>
+        <div v-if="checked != true">
+          <div class="q-pa-md flex flex-center">
+            <p></p>
+            <q-btn-dropdown color="black" dropdown-icon="change_history" label="Model">
+
+              <q-list>
+                <q-item v-for="option in selectOptions" :key="option.value" clickable v-close-popup
+                  @click="selectedFile = option.value">
+
+                  <q-item-section>{{ option.label }}</q-item-section>
+                </q-item>
+              </q-list>
+            </q-btn-dropdown>
           </div>
         </div>
 
 
 
         <div v-if="selectedFile === '1' && checked != true">
+          <q-intersection
+        :key="index"
+        transition="jump-up"
+      >
           <q-card class="q-pa-md" style="margin: 0 auto; width: 90%;">
             <q-card-section>
               <q-slider v-model="Support" label-always :min="1" :max="15" />
@@ -97,10 +110,14 @@
             </q-card-actions>
           </q-card>
 
-
+        </q-intersection>
         </div>
-        <div v-if="selectedFile === '2' && checked != true">
 
+        <div v-if="selectedFile === '2' && checked != true">
+          <q-intersection
+        :key="index"
+        transition="jump-up"
+      >
           <q-card class="q-pa-md " style="margin: 0 auto; width: 90%;">
             <q-card-section>
 
@@ -112,6 +129,7 @@
               <q-btn color="secondary" @click="reset">Cancel</q-btn>
             </q-card-actions>
           </q-card>
+        </q-intersection>
         </div>
 
 
@@ -119,7 +137,7 @@
         <select v-model="selectedFile" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
           <option value="1">Apriori</option>
           <option value="2">CF</option>
-            </select> -->
+              </select> -->
 
 
       <!-- <div v-if="selectedFile === '1'">
@@ -162,16 +180,16 @@
           </div>
         <button  @click="submit2" class="btn btn-primary">Submit</button>
     </div>
-         -->
+           -->
 
 
 
 
       <!-- 
-      </div> -->
+        </div> -->
       <!-- <div class="q-gutter-y-md column" style="max-width: 300px">
     <q-select filled v-model="model" :options="options" label="Filled" />
-      </div> -->
+        </div> -->
 
 
 
@@ -251,7 +269,7 @@
       <div class="p-3 bg-danger text-light rounded"><h1>Recom </h1><span>3>>300</span></div>
     </div>
   </div>
-      <hr class="mt-10 mb-1"/> -->
+        <hr class="mt-10 mb-1"/> -->
 
 <!-- <div>
     <div class="dropdown">
@@ -270,7 +288,7 @@
       <li><a class="dropdown-item" href="#">Something else here</a></li>
     </ul>
   </div>
-    </div> -->
+      </div> -->
 </template>
 <script>
 
@@ -289,6 +307,7 @@ export default {
   setup() {
     return {
       filter1: ref(''),
+
     }
   },
   data() {
@@ -461,19 +480,19 @@ export default {
           this.paused = true
           this.running = false
           this.$q.notify({
-          color: "positive",
-          message: "Running interval",
-          position: "top-right"
-        });
+            color: "positive",
+            message: "Running interval",
+            position: "top-right"
+          });
         } else {
           response = await axios.get('pause_job')
           this.paused = false
           this.running = true
           this.$q.notify({
-          color: "negative",
-          message: "Pause interval",
-          position: "top-right"
-        });
+            color: "negative",
+            message: "Pause interval",
+            position: "top-right"
+          });
         }
         if (response.status === 200) {
           this.Status = response.data
