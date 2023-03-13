@@ -124,8 +124,9 @@
                 label="Title"
                 :rules="[v => v && v.length > 0 || 'Field cannot be empty']"
                 autofocus
+                disable
               />
-              <q-time color="green" v-model="selectedDateTime" mask=HH-mm label="Date and Time" now-btn landscape />
+              <q-time v-model="eventForm.details" color="green" mask=HH-mm label="Date and Time" now-btn landscape />
 
             </q-card-section>
             <q-card-actions align="right">
@@ -246,7 +247,7 @@ export default defineComponent({
   },
   methods: {
       resetForm () {
-      this.$set(this, 'eventForm', { ...formDefault })
+      this.$set(this, 'eventForm', { ...`formDefault` })
     },
     displayClasses (event) {
       return {
@@ -254,9 +255,60 @@ export default defineComponent({
         'rounded-border': true
       }
     },
+    onSubmit () {
+      this.saveEvent()
+    },
+
+    onReset () {
+
+    },
+
+      saveEvent () {
+        const self = this
+        this.$refs.event.validate().then((success) => {
+          if (success) {
+            // close the dialog
+            self.addEvent = false
+            const form = { ...self.eventForm }
+            let update = false
+            if (self.contextDay.bgcolor) {
+              // an update
+              update = true
+            }
+            else {
+              // an add
+            }
+            const data = {
+              title: form.title,
+              details: form.details,
+              
+            }
+            if (form.allDay === false) {
+              // get time into separate var
+              data.time = String(form.dateTimeStart).slice(11, 16)
+              data.duration = self.getDuration(form.dateTimeStart, form.dateTimeEnd, 'minutes')
+            }
+            if (update === true) {
+              const index = self.findEventIndex(self.contextDay)
+              if (index >= 0) {
+                self.events.splice(index, 1, { ...data })
+              }
+            }
+            else {
+              // add to events array
+              self.events.push(data)
+            }
+
+            self.contextDay = null
+          }
+        })
+      },
     editEvent (event) {
+      const form = { ...self.eventForm }
+      console.log(form)
       // this.resetForm()
       this.contextDay = { ...event }
+      console.log(this.contextDay)
       let timestamp
       if (event.time) {
         
@@ -266,20 +318,37 @@ export default defineComponent({
       }
       else {
         timestamp = QCalendar.parseTimestamp(this.contextDay.date + ' 00:00')
+        console.log('asdasdas')
       }
       
-      this.eventForm.allDay = !event.time
-      this.eventForm.bgcolor = event.bgcolor
-      this.eventForm.icon = event.icon
       this.eventForm.title = event.title
       this.eventForm.details = event.details
       this.addEvent = true // show dialog
     },
     deleteEvent (event) {
       const index = this.findEventIndex(event)
+      
+
+    if (event['id'] === 'my_job') {
+      this.$q.notify({
+            color: "negative",
+            message: "can't delate interval job you can turn off job below buttom",
+            position: "top",
+          })
+    }else {
+      axios.post('/remove_job',{"id":event['id']})    
       if (index >= 0) {
         this.events.splice(index, 1)
-      }
+       }
+       this.$q.notify({
+            color: "negative",
+            message: "Job delate id "+ event['id'] + ' successful',
+            position: "top",
+          })
+    }
+
+
+      
     },
     findEventIndex (event) {
       for (let i = 0; i < this.events.length; ++i) {

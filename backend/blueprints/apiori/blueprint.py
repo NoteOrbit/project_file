@@ -16,7 +16,8 @@ from mlxtend.frequent_patterns import apriori
 from mlxtend.frequent_patterns import association_rules
 from pprint import pprint  # show pprint format json
 from datetime import datetime, timedelta
-
+from surprise.dump import dump, load
+from surprise import accuracy, Dataset, SVD, Reader
 
 """
 
@@ -83,11 +84,60 @@ class CFRecommender2:
         return recommendations_df
 
 
+
+
+"""
+
+
+remove job
+
+
+"""
+
+@recommend_rule.route('/remove_job', methods=['POST'])
+def remove_job():
+    _json = request.json
+    _id = _json['id']
+
+    scheduler.remove_job(_id)
+
+    return jsonify({'message': 'Job removed'})
+
+
+"""
+
+
+modify  job
+
+
+"""
+
+
+# @recommend_rule.route('/modify', methods=['POST'])
+# def remove_job():
+#     _json = request.json
+#     _id = _json['id']
+
+#     scheduler.remove_job(_id)
+
+#     return jsonify({'message': 'Job removed'})
+
+
+
+
+
+
 """
 
 Router GETMODEL
 
 """
+
+
+
+
+
+
 
 
 @recommend_rule.route('/getmodel', methods=['GET'])
@@ -231,6 +281,97 @@ def save_model():
 
     return jsonify({"msg": "sucesss"}), 201
 
+"""
+
+save_cf model libary
+
+"""
+
+
+@recommend_rule.route('/save_test', methods=['POST'])
+def save_model_test():
+    _json = request.json
+    n_epochs = int(_json['n_epochs'])
+    n_factors = int(_json['n_factors'])
+    lr_all = float(_json['lr_all'])
+    db = client['Infomations']
+    users_collection = db['Transaction_user']
+    data = users_collection.find(
+        {}, {'Store': 1, '_id': 0, 'User': 1, 'Rating': 1})
+    df11 = pd.DataFrame(list(data))
+
+    reader = Reader(rating_scale=(1, 5))
+    dataset = Dataset.load_from_df(df11[['User','Store','Rating']],reader)
+
+    algo = SVD(n_epochs=n_epochs,n_factors=n_factors,lr_all=lr_all,verbose=True)
+    trainset_full = dataset.build_full_trainset()
+    algo.fit(trainset_full)
+
+    
+    predictions = algo.test(trainset_full.build_anti_testset())
+    mse = accuracy.mse(predictions)
+    now = datetime.now()
+    
+    file = f'Collaborative-filtering-{now.strftime("%Y_%m_%d_%H_%M_%S")}.pkl'
+    dump_file = f'model/Collaborative-filtering/{file}'
+    dump(dump_file,algo=algo, predictions=predictions,verbose=True)
+
+
+    systempath = client['system']
+    model = systempath['model_log']
+    js = {
+        "model_name": "Collaborative filtering-svd",
+        "path": dump_file,
+        "date": datetime.now(),
+        "setting": {"n_epochs": n_epochs,
+                    "n_factors":n_factors,
+                    'lr_all':lr_all
+                    },
+        "measures": {"mse": mse,
+                     }
+    }
+    model.insert_one(js)
+
+
+
+    # user_df = df11.pivot_table(
+    #     index="User", columns="Store", values='Rating').fillna(0)
+    # user_ids = list(user_df.index)
+    # U, sigma, Vt = svds(user_df.values, k=values)
+    # sigma = np.diag(sigma)
+    # predicted_ratings = np.dot(np.dot(U, sigma), Vt)
+    # all_user_predicted_ratings_norm = (
+    #     predicted_ratings - predicted_ratings.min()) / (predicted_ratings.max() - predicted_ratings.min())
+    # preds_df = pd.DataFrame(all_user_predicted_ratings_norm,
+    #                         columns=user_df.columns,
+    #                         index=user_ids).transpose()
+    # now = datetime.now()
+    # filename = "preds_df_" + now.strftime("%Y_%m_%d_%H_%M_%S") + ".pkl"
+    # with open('model/CF/'+filename, 'wb') as f:
+    #     pickle.dump(preds_df, f)
+
+    # mse = np.mean((user_df.values - predicted_ratings)**2)
+    # mse = np.round(mse, 4)
+
+    # systempath = client['system']
+    # model = systempath['model_log']
+    # js = {
+    #     "model_name": "CF",
+    #     "path": f"model/CF/{filename}",
+    #     "date": datetime.now(),
+    #     "setting": {"K": values},
+    #     "measures": {"mse": mse,
+    #                  }
+    # }
+    # model.insert_one(js)
+
+    return jsonify({"msg": "sucesss"}), 201
+
+
+
+
+
+
 # @scheduler.task('interval', id='save_model1', seconds=30)
 
 
@@ -271,6 +412,7 @@ scheduler.add_job(id='my_job', func=save_model1,
                   replace_existing=True, trigger='interval', hours=6)
 
 
+
 """
 
 scheduler custom
@@ -295,7 +437,7 @@ def schedule_job():
         fields = trigger_value.split('-')
         scheduler.add_job(id=job_id, func=save_model1, trigger=trigger_type,
                           year=fields[0], month=fields[1], day=fields[2], hour=fields[3], minute=fields[4])
-        print(scheduler.get_job(job_id))
+        
         return jsonify({'msg': 'save add'}), 201
     else:
 
