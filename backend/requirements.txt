@@ -58,3 +58,4 @@ wheel==0.38.4
 WTForms==3.0.1
 zipp==3.11.0
 python-dotenv==1.0.0
+surprise==0.1

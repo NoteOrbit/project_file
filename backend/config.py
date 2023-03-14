@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 
-client = MongoClient("0.0.0.0",
+client = MongoClient("mongodb",
                      port=27018,
                      username='root',
                      password='example',
