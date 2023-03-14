@@ -7,8 +7,9 @@ import numpy as np
 import hashlib
 from scipy.sparse.linalg import svds
 from datetime import datetime
-from extensions import scheduler, trigger
+from extensions import scheduler
 import sys
+import os
 from bson import json_util
 from config import client
 from mlxtend.preprocessing import TransactionEncoder
@@ -41,9 +42,16 @@ init current model as , svds
 
 
 current_model = None  # svd
+
 currnet_model_as = None  # as
+
+current_test = None ## svd lib
+
 global path_current_as
 global path_current
+global path_current_test
+
+
 path_current_as = ''
 path_current = setup_model_cf[0]['path']
 try:
@@ -53,6 +61,17 @@ except:
     with open('model/CF/preds_df_2023_01_26_09_51_44.pkl', 'rb') as f:
         current_model = pickle.load(f)
 
+
+try:
+    setup_db = client['system']
+    setup_model = setup_db['model_log']
+    model_cf_test = setup_model.find({"model_name": "SVD"}, {
+                            "path": 1, '_id': 0}).sort([("_id", -1)]).limit(1)
+    path = model_cf_test[0]['path'] 
+    current_test = load(path)
+    
+except:
+    pass
 '''
 
 CLASS SHOW SVD RECOMMENDATIONS
@@ -214,17 +233,13 @@ def switch_model_as():
 
 @recommend_rule.route('/switch_model', methods=['POST'])
 def switch_model():
-    # get the path of the selected model from the client's request
+    
     selected_model_path = request.json['path']
 
-    # use the selected model path to load the appropriate model
-    with open(selected_model_path, 'rb') as f:
-        model = pickle.load(f)
+    model = load(selected_model_path)
 
-    # update the global variable that stores the current model
-
-    global current_model
-    current_model = model
+    global current_test
+    current_test = model
     path_current = selected_model_path
     current_app.config['path'] = path_current
     print(current_app.config['path'])
@@ -310,17 +325,19 @@ def save_model_test():
     
     predictions = algo.test(trainset_full.build_anti_testset())
     mse = accuracy.mse(predictions)
+    mse = np.round(mse, 4)
     now = datetime.now()
     
     file = f'Collaborative-filtering-{now.strftime("%Y_%m_%d_%H_%M_%S")}.pkl'
     dump_file = f'model/Collaborative-filtering/{file}'
     dump(dump_file,algo=algo, predictions=predictions,verbose=True)
 
+    size = os.path.getsize(f'model/Collaborative-filtering/{file}')
 
     systempath = client['system']
     model = systempath['model_log']
     js = {
-        "model_name": "Collaborative filtering-svd",
+        "model_name": "SVD",
         "path": dump_file,
         "date": datetime.now(),
         "setting": {"n_epochs": n_epochs,
@@ -328,7 +345,8 @@ def save_model_test():
                     'lr_all':lr_all
                     },
         "measures": {"mse": mse,
-                     }
+                     },
+        "size":size / 1e+6
     }
     model.insert_one(js)
 
@@ -549,6 +567,7 @@ def savemodelsa():
                 pickle.dump(age_gender_rules, f)
                 systempath = client['system']
             model = systempath['model_log']
+            size = os.path.getsize(f"model/apiori/{filename}")
             js = {
                 "model_name": "association_rule",
                 "path": f"model/apiori/{filename}",
@@ -558,6 +577,7 @@ def savemodelsa():
                             "confidence": confidence_values,
                             "baseon": base_on
                             },
+                "size":size / 1e+6
             }
             model.insert_one(js)
             return jsonify({"msg": "Train"}), 201
@@ -602,6 +622,186 @@ def check_job():
 SETUP CORN JOB
 
 """
+
+
+@recommend_rule.route('/recommend_test', methods=['POST'])
+def recommend_test():
+    _json = request.json
+    user_name = _json.get('name')
+    print(user_name)
+    # user_name = request.args.get("name")
+    db = client['Infomations']
+    users_collection = db['Transaction_user']
+    user_check = users_collection.find_one({'User': user_name})
+    print(current_app.config['path'])
+    if user_check:
+        
+        
+        loaded_algo = current_test
+        
+            
+        pred_df = pd.DataFrame(loaded_algo[0], columns=['user_id', 'item_id', 'actual_rating', 'predicted_rating', 'details'])
+        pred_df = pred_df.drop(columns=['details'])  
+        
+            
+        recommend = pred_df[pred_df['user_id'] == user_name].sort_values(by='predicted_rating',ascending=False).head(10)
+        list_item = recommend['item_id'].to_list()
+        print(list_item)
+        if len(list_item) != 0:
+            
+        
+            pipeline = [
+                {"$match": {"store": {"$in": list_item}}},
+                {"$addFields": {"index": {"$indexOfArray": [list_item, "$store"]}}},
+                {"$sort": {"index": 1}},
+                {"$project": {"_id": 0}}
+            ]
+            store = db['new_collection']
+            results = list(store.aggregate(pipeline))
+            results.append(current_app.config['path'])
+            messs = {
+                "data": results,
+                "model": "SVD"
+            }
+            s = json.dumps(messs)
+            b = json.loads(s)
+
+            log = client['system']
+            log_system = log['recommendations']
+            hash_object = hashlib.sha256(current_app.config['path'].encode())
+            hex_dig = hash_object.hexdigest()
+            data_log = {
+                "recommend_id": hex_dig,
+                "uid": user_name,
+                "recommend_item": list_item,
+                "path_model": current_app.config['path'],
+                "date": datetime.now()
+            }
+
+            check_user = log_system.find_one(
+                {"uid": user_name, "recommend_id": hex_dig})
+            if not check_user:
+                log_system.insert_one(data_log)
+            else:
+                pass
+            
+
+                return jsonify(b), 200
+        else:
+            try:
+                users_collection = db['User']
+                user_check = users_collection.find(
+                    {'uid': user_name}, {"gender": 1, "age": 1, "_id": 0})
+                user = {}
+
+                for x in user_check:
+                    user = x
+
+                def mapage(
+                    x): return '10-20' if x <= 20 else '21-40' if x <= 40 else '41-60' if x <= 60 else '60+'
+                user['age'] = mapage(user['age'])
+                user['gender'] = user['gender'].lower()
+                # with open('model/apiori/association2023_02_11_19_44_01.pkl', 'rb') as f:
+                #     age_rule = pickle.load(f)
+
+                age_rule = currnet_model_as  # setup model first
+
+                rules = age_rule[(user['age'], user['gender'].lower())].sort_values(
+                    by='confidence', ascending=False)
+
+                recommended_items = set()
+                for index, row in rules.head(20).iterrows():
+                    recommended_items.add(row["consequents"])
+                recommended_items = list(recommended_items)
+                recommended_items = [list(item) for item in recommended_items]
+                print(recommended_items)
+                re = set()
+                for a in recommended_items:
+                    da = set([ss.strip() for ss in a])
+                    re.update(da)
+                lista = list(re)
+
+                pipeline = [
+                    {"$match": {"store": {"$in": lista}}},
+                    {"$addFields": {
+                        "index": {"$indexOfArray": [lista, "$store"]}}},
+                    {"$sort": {"index": 1}},
+                    {"$project": {"_id": 0}}
+                ]
+
+                store = db['new_collection']
+                results = list(store.aggregate(pipeline))
+                messs = {
+                    "data": results,
+                    "model": "association rule"
+                }
+                s = json.dumps(messs)
+                b = json.loads(s)
+                return jsonify(b)
+            except:
+                return jsonify({'msg': 'no user in system'}),401
+
+    # else:
+
+        # try:
+        #     users_collection = db['User']
+        #     user_check = users_collection.find(
+        #         {'uid': user_name}, {"gender": 1, "age": 1, "_id": 0})
+        #     user = {}
+
+        #     for x in user_check:
+        #         user = x
+
+        #     def mapage(
+        #         x): return '10-20' if x <= 20 else '21-40' if x <= 40 else '41-60' if x <= 60 else '60+'
+        #     user['age'] = mapage(user['age'])
+        #     user['gender'] = user['gender'].lower()
+        #     # with open('model/apiori/association2023_02_11_19_44_01.pkl', 'rb') as f:
+        #     #     age_rule = pickle.load(f)
+
+        #     age_rule = currnet_model_as  # setup model first
+
+        #     rules = age_rule[(user['age'], user['gender'].lower())].sort_values(
+        #         by='confidence', ascending=False)
+
+        #     recommended_items = set()
+        #     for index, row in rules.head(20).iterrows():
+        #         recommended_items.add(row["consequents"])
+        #     recommended_items = list(recommended_items)
+        #     recommended_items = [list(item) for item in recommended_items]
+        #     print(recommended_items)
+        #     re = set()
+        #     for a in recommended_items:
+        #         da = set([ss.strip() for ss in a])
+        #         re.update(da)
+        #     lista = list(re)
+
+        #     pipeline = [
+        #         {"$match": {"store": {"$in": lista}}},
+        #         {"$addFields": {
+        #             "index": {"$indexOfArray": [lista, "$store"]}}},
+        #         {"$sort": {"index": 1}},
+        #         {"$project": {"_id": 0}}
+        #     ]
+
+        #     store = db['new_collection']
+        #     results = list(store.aggregate(pipeline))
+        #     messs = {
+        #         "data": results,
+        #         "model": "association rule"
+        #     }
+        #     s = json.dumps(messs)
+        #     b = json.loads(s)
+        #     return jsonify(b)
+        # except:
+        #     return jsonify({'msg': 'no user in system'}),401
+
+
+
+
+
+
+
 
 
 """
@@ -757,7 +957,6 @@ POPULATIONS BASE MODEL
 
 @recommend_rule.route('/recommend_populations', methods=['GET'])
 def recommend1():
-    client = MongoClient('localhost', 27017)
     db = client['Infomations']
     users_collection = db['Transaction_user']
 

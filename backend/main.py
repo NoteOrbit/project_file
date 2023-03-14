@@ -19,7 +19,7 @@ def create_app():
     setup_model = setup_db['model_log']
     db = client['system']
     model_cf = setup_model.find(
-        {}, {"path": 1, '_id': 0}).sort([("_id", -1)]).limit(1)
+        {"model_name": "SVD"}, {"path": 1, '_id': 0}).sort([("_id", -1)]).limit(1)
     setup_model_cf = [x for x in model_cf]
     app.config['path'] = setup_model_cf[0]['path']
 

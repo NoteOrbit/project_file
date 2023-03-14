@@ -15,24 +15,27 @@
         :key="index"
         transition="jump-up"
       >
-            <div class="row justify-center q-gutter-sm ">
+            <div class="row justify-center q-gutter-sm text-center ">
               
-              <div class="col-12 col-md-auto">
-                <q-card class="my-card bg-black text-white w">
+              <div class="col-xs-12 col-sm-6 col-md-4">
 
-                  <q-card-section>
+                <q-card class="my-card1 bg-black text-white ">
+
+                  <q-card-section >
                     <h5> <q-icon name="handshake"/> Collaborative filtering</h5>
                     <strong>versions {{ current }}</strong>
                   </q-card-section>
 
                 </q-card>
               </div>
-              <div class="col-12 col-md-auto">
+              <div class="col-xs-12 col-sm-6 col-md-4">
 
 
-                <q-card class="my-card bg-red-10 text-white">
 
-                  <q-card-section>
+                <q-card class="my-card1 bg-red-10 text-white">
+
+                  <q-card-section >
+                    
                     <h5><q-icon name="rule"/> Associations rules</h5>
                     <strong>versions {{ current_as }}</strong>
                   </q-card-section>
@@ -120,9 +123,14 @@
       >
           <q-card class="q-pa-md " style="margin: 0 auto; width: 90%;">
             <q-card-section>
+              
+              <span>N_epoch</span>
+              <q-input standout v-model="ph" label="Epoch" placeholder="Placeholder" hint="With placeholder" :dense="dense" pattern="\b\d+\b" />
 
-              <q-slider v-model="latent" label="Latent Factor" label-always :min="0" :max="33" />
-              <span>K values</span>
+              <span>N_factors</span>
+              <q-input standout v-model="ph" label="Epoch" placeholder="Placeholder" hint="With placeholder" :dense="dense" />
+              <span>Lr_rate</span>
+              <q-input standout v-model="ph" label="Epoch" placeholder="Placeholder" hint="With placeholder" :dense="dense" />
             </q-card-section>
             <q-card-actions align="right">
               <q-btn color="primary" @click="submit2">Submit</q-btn>
@@ -230,12 +238,13 @@
                   <q-td>{{ row._id }}</q-td>
                   <q-td>{{ row.model_name }}</q-td>
                   <q-td>{{ row.date }}</q-td>
-                  <q-td>{{ row.path }}</q-td>
+                  <!-- <q-td>{{ row.path }}</q-td> -->
                   <q-td>{{ row.measures ? row.measures.mse : '-' }}</q-td>
                   <q-td>{{ row.setting ? row.setting : '-' }}</q-td>
+                  <q-td>{{ row.size ? (row.size).toFixed(2) + ' MB' : '-'  }} </q-td>
                   <q-td>
                     <!-- <q-btn color="primary" @click="switchModel(row)">Use This Model</q-btn> -->
-                    <q-btn color="black" @click="row.model_name === 'CF' ? switchModel(row) : switchModel_AS(row)">
+                    <q-btn color="black" @click="row.model_name === 'SVD' ? switchModel(row) : switchModel_AS(row)">
                       Use model
                     </q-btn>
                   </q-td>
@@ -346,9 +355,10 @@ export default {
         { name: '_id', label: 'ID', field: '_id', align: 'left' },
         { name: 'model_name', label: 'MODEL', field: 'model_name', align: 'left', sortable: true },
         { name: 'date', label: 'DATE', field: 'date', align: 'left', sortable: true },
-        { name: 'path', label: 'PATH', field: 'path', align: 'left' },
+        // { name: 'path', label: 'PATH', field: 'path', align: 'left' },
         { name: 'mse', label: 'MSE', field: 'measures', align: 'left' },
         { name: 'setting', label: 'SETTING', field: 'setting', align: 'left' },
+        { name: 'size', label: 'SIZE', field: 'size', align: 'left' },
         { name: 'actions', label: 'ACTIONS', align: 'left', },
         // { name: 'setting', label: 'SETTING', field: row => this.models.setting.k, align: 'left' },
       ],
@@ -534,9 +544,13 @@ export default {
 
 }
 </script>
-<style lang="sass">
+<style>
 
-.a
-  padding: 10px
+.my-card1{
+  width: auto;
+  height: 200px;
+}
+
+
 
 </style>

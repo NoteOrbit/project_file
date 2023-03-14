@@ -2,12 +2,14 @@ from flask import Flask, Blueprint , jsonify , request , current_app
 from pymongo import MongoClient
 import pandas as pd
 import json
+from  pprint import pprint
 import datetime
 import hashlib
 from config import client
-general = Blueprint("general",__name__)
 
-# client = MongoClient("mongodb://0.tcp.ap.ngrok.io:17474")
+
+
+general = Blueprint("general",__name__)
 
 db = client['Infomations']
 
@@ -19,7 +21,7 @@ def get_review():
     store = _json['store']
     message = _json['message']
     date = _json['date']
-
+    
     if uid and rating and store and message and date and request.method == "POST":
 
         collections = db['User']
@@ -54,7 +56,7 @@ def get_review():
             return jsonify('add review in db') ,201
             
 
-@general.route('/take', methods=['GET',"POST","UPDATE"]) ## regiseter
+@general.route('/take', methods=["POST"]) ## regiseter
 def take():
 
     db = client['Infomations']
